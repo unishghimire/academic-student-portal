@@ -148,13 +148,12 @@
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
 
       // Also set plan to pending/active
-      const isTier3 = submission.planName?.toLowerCase().includes('3-tier');
       const newPlan = {
-        planId: isTier3 ? 'tier3' : 'monthly',
-        planName: submission.planName || 'Monthly All-Access Subscription',
+        planId: 'monthly',
+        planName: submission.planName || 'Monthly Subscription',
         priceNpr: submission.amount || 1000,
-        roleName: isTier3 ? '@Tier-3 Master' : '@Monthly-Subscriber',
-        roleColor: isTier3 ? '#f59e0b' : '#5865F2',
+        roleName: '@Monthly-Subscriber',
+        roleColor: '#5865F2',
         status: 'pending',
         startedAt: Date.now(),
         expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
@@ -250,26 +249,21 @@
     }
 
     triggerRenewal() {
-      const currentPlan = this.getStoredPlan();
       // Switch to checkout tab
       this.switchTab('checkout');
 
-      // Pre-select current plan in Step 1
-      if (currentPlan) {
-        const targetTier = currentPlan.planId === 'tier3' ? 'tier3' : 'monthly';
-        const card = document.querySelector(`.tier-card[data-tier-id="${targetTier}"]`);
-        if (card) {
-          card.click();
-        }
+      // Navigate wizard to Step 1
+      if (window.goToWizardStep) {
+        window.goToWizardStep(1);
       }
 
-      // Scroll smoothly to Step 2
-      const step2 = document.getElementById('methodsSection');
-      step2?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll smoothly to wizard container
+      const wizardContainer = document.getElementById('wizardMainContainer');
+      wizardContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       // Notify user
       if (window.showToast) {
-        window.showToast('🔄 Renewal pre-selected! Scan QR or transfer रु 1,000 to renew.');
+        window.showToast('🔄 Renewal: Select your payment method to renew for रु 1,000.');
       }
     }
 

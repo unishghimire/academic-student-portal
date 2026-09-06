@@ -56,13 +56,13 @@
     displayFormat: (amount) => `रु ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
   };
 
-  // Subscription Tiers Configuration (Priced in NPR 1,000)
+  // Single Monthly Subscription Plan (Recurring 30 Days, रु 1,000)
   window.ACADEMY_TIERS = {
     monthly: {
       id: 'monthly',
       tierNumber: 1,
-      name: 'Monthly All-Access Subscription',
-      badge: 'Recurring Pass',
+      name: 'Monthly Subscription',
+      badge: 'Recurring 30 Days',
       badgeClass: 'popular',
       price: 1000,
       currency: 'NPR',
@@ -70,33 +70,13 @@
       roleName: '@Monthly-Subscriber',
       roleColor: '#5865F2',
       features: [
-        'Full Access to All Academy Courses & Modules',
-        'Interactive Assignments, Quizzes & XP System',
-        'Weekly Live Q&A Voice Sessions with Mentors',
-        'Discord @Monthly-Subscriber Role Activation',
-        '24/7 Access to Student Community & Voice Lounges'
+        'Full Access to All Academy Courses',
+        'Live Weekly Voice Q&A & Mentorship Sessions',
+        'Interactive Quizzes, Assignments & XP Points',
+        'Discord Private Voice Lounges & Networking',
+        'Live Countdown & Instant 1-Click Renewal'
       ],
-      description: 'The standard monthly subscription giving unlimited access to all academy materials and live sessions.'
-    },
-    tier3: {
-      id: 'tier3',
-      tierNumber: 3,
-      name: '3-Tier All-Access Pass',
-      badge: 'Complete Bundle',
-      badgeClass: 'master',
-      price: 1000,
-      currency: 'NPR',
-      periodText: 'All 3 Tiers Unlocked',
-      roleName: '@Tier-3 Master',
-      roleColor: '#f59e0b',
-      features: [
-        'Unlocks Tier 1 (Foundation) + Tier 2 (Practitioner) + Tier 3 (Master VIP)',
-        'Direct 1-on-1 Portfolio & Code Audits from Instructors',
-        'Discord @Tier-3 Master & Verified Scholar Roles',
-        'VIP Alumni Networking & Resource Vault',
-        'Fast-Track Graduate Certificate of Completion'
-      ],
-      description: 'Comprehensive 3-tier access package delivering complete mastery from foundation to executive VIP mentorship.'
+      description: 'Single monthly membership plan providing full access to all academy courses and Discord community channels.'
     }
   };
 

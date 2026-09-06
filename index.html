@@ -80,182 +80,244 @@
       <header class="header">
         <div class="brand-pill">
           <span class="pulse-dot"></span>
-          <span>The Elite Circle Academy • Automated Nepali Portal</span>
+          <span>The Elite Circle Academy • Single Monthly Membership</span>
         </div>
-        <h1>Direct Payment & Discord Verification</h1>
-        <p class="subtitle">Enroll in Academy subscriptions using eSewa, Khalti, or Mobile Banking. Connect your Discord account to secure your User ID and automatically synchronize role permissions.</p>
+        <h1>Monthly Subscription & Discord Verification</h1>
+        <p class="subtitle">Follow the simple step-by-step payment flow below. Connect your Discord account to auto-fill your details, transfer via eSewa, Khalti, or Mobile Banking, and submit your receipt for automated role activation.</p>
       </header>
 
-      <!-- Visual Stepper -->
-      <nav class="stepper-nav" aria-label="Checkout Progress">
-        <div class="step-item active" id="stepIndicator1">
-          <div class="step-num">1</div>
-          <div class="step-meta">
-            <span class="step-label">Select Plan</span>
-            <span class="step-desc">Monthly or 3-Tier</span>
+      <!-- Single Active Plan Showcase Card -->
+      <section class="section-card single-plan-card">
+        <div class="plan-showcase-left">
+          <div class="plan-pill-row">
+            <span class="featured-ribbon-static">OFFICIAL PLAN</span>
+            <span class="tier-badge popular">Recurring 30 Days</span>
+          </div>
+          <h2 class="plan-main-title">Monthly Subscription</h2>
+          <div class="plan-price-large">
+            <span class="currency">रु</span>
+            <span class="amount">1,000</span>
+            <span class="period">/ 30 days</span>
+          </div>
+          <div class="tier-role-grant">
+            <span class="role-icon">🛡️</span>
+            <span>Grants Discord Role: <strong>@Monthly-Subscriber</strong></span>
           </div>
         </div>
-        <div class="step-divider"></div>
-        <div class="step-item" id="stepIndicator2">
-          <div class="step-num">2</div>
-          <div class="step-meta">
-            <span class="step-label">Scan QR / Pay</span>
-            <span class="step-desc">eSewa • Khalti • Bank</span>
-          </div>
-        </div>
-        <div class="step-divider"></div>
-        <div class="step-item" id="stepIndicator3">
-          <div class="step-num">3</div>
-          <div class="step-meta">
-            <span class="step-label">Submit Proof</span>
-            <span class="step-desc">Discord ID Verified</span>
-          </div>
-        </div>
-      </nav>
-
-      <!-- STEP 1: MEMBERSHIP TIER SELECTION (Priced in NPR 1000) -->
-      <section class="section-card" id="tierSection">
-        <div class="section-header">
-          <div class="step-badge">STEP 1</div>
-          <div>
-            <h2>Choose Your Academy Access Plan</h2>
-            <p class="section-sub">Select your enrollment package. Priced directly in Nepalese Rupees (NPR रु) with automated Discord role assignment.</p>
-          </div>
-        </div>
-
-        <div class="tier-grid two-cards">
-          <!-- Plan 1: Monthly Subscription (NPR 1000) -->
-          <div class="tier-card featured selected" data-tier="1" data-tier-id="monthly" data-price="1000" data-tier-name="Monthly All-Access Subscription">
-            <div class="featured-ribbon">POPULAR CHOICE</div>
-            <div class="tier-badge popular">Recurring 30 Days</div>
-            <h3 class="tier-title">Monthly Subscription</h3>
-            <div class="tier-price">
-              <span class="currency">रु</span>
-              <span class="amount">1,000</span>
-              <span class="period">/ 30 days</span>
-            </div>
-            <div class="tier-role-grant">
-              <span class="role-icon">🛡️</span>
-              <span>Grants Discord Role: <strong>@Monthly-Subscriber</strong></span>
-            </div>
-            <ul class="tier-features">
-              <li>✓ <strong>Full Access to All Academy Courses</strong></li>
-              <li>✓ Live Weekly Voice Q&A & Mentorship Sessions</li>
-              <li>✓ Interactive Quizzes, Assignments & XP Points</li>
-              <li>✓ Discord Private Voice Lounges & Networking</li>
-              <li>✓ Live Countdown & Instant 1-Click Renewal</li>
-            </ul>
-            <button type="button" class="btn-tier-select">Select Monthly (रु 1,000)</button>
-          </div>
-
-          <!-- Plan 2: 3-Tier Access (NPR 1000) -->
-          <div class="tier-card" data-tier="2" data-tier-id="tier3" data-price="1000" data-tier-name="3-Tier All-Access Pass">
-            <div class="featured-ribbon vip">COMPLETE ACCESS</div>
-            <div class="tier-badge master">Executive Bundle</div>
-            <h3 class="tier-title">3-Tier Access</h3>
-            <div class="tier-price">
-              <span class="currency">रु</span>
-              <span class="amount">1,000</span>
-              <span class="period">All 3 Tiers Unlocked</span>
-            </div>
-            <div class="tier-role-grant">
-              <span class="role-icon">👑</span>
-              <span>Grants Discord Role: <strong>@Tier-3 Master</strong></span>
-            </div>
-            <ul class="tier-features">
-              <li>✓ <strong>Unlocks Tier 1 (Foundation) + Tier 2 (Practitioner) + Tier 3 (Master)</strong></li>
-              <li>✓ 1-on-1 Portfolio Reviews & Personal Code Audits</li>
-              <li>✓ Discord @Tier-3 Master VIP Role & Exclusive Lounge</li>
-              <li>✓ Fast-Track Academy Graduate Certificate</li>
-              <li>✓ Direct Mentorship & Private Project Vault</li>
-            </ul>
-            <button type="button" class="btn-tier-select">Select 3-Tier Access (रु 1,000)</button>
-          </div>
-        </div>
-
-        <!-- Custom Amount Option -->
-        <div class="custom-tier-toggle">
-          <label class="custom-tier-checkbox">
-            <input type="checkbox" id="customAmountToggle">
-            <span>I am paying a custom amount / special invoice</span>
-          </label>
-          <div id="customAmountInputWrapper" class="custom-amount-input-box hidden">
-            <label for="customAmountField">Enter Custom Amount (NPR रु):</label>
-            <div class="input-currency-wrapper">
-              <span class="currency-symbol">रु</span>
-              <input type="number" id="customAmountField" step="10" min="100" placeholder="e.g. 1000">
-            </div>
-          </div>
+        <div class="plan-showcase-right">
+          <h4 class="perks-heading">Membership Inclusions:</h4>
+          <ul class="plan-perks-list">
+            <li>✓ <strong>Full Access to All Academy Courses</strong></li>
+            <li>✓ Live Weekly Voice Q&A & Mentorship Sessions</li>
+            <li>✓ Interactive Quizzes, Assignments & XP Points</li>
+            <li>✓ Discord Private Voice Lounges & Networking</li>
+            <li>✓ Live Countdown & Instant 1-Click Renewal</li>
+          </ul>
         </div>
       </section>
 
-      <!-- STEP 2: PAYMENT METHODS & QR CODES (eSewa, Khalti, Bank) -->
-      <section class="section-card" id="methodsSection">
-        <div class="section-header">
-          <div class="step-badge">STEP 2</div>
-          <div>
-            <h2>Nepali Payment Methods & Official QR Codes</h2>
-            <p class="section-sub">Transfer using your preferred digital wallet or mobile banking app. Include your Discord username in the remarks.</p>
+      <!-- PENDING VERIFICATION LOCKDOWN SCREEN (Shown when a submission is under review) -->
+      <section id="pendingLockdownCard" class="section-card lockdown-card hidden">
+        <div class="lockdown-badge">
+          <span class="pulse-dot-amber"></span>
+          <span>SUBMISSION UNDER REVIEW</span>
+        </div>
+        <div class="lockdown-icon-circle">⏳</div>
+        <h2>Payment Verification in Progress</h2>
+        <p class="lockdown-desc">
+          Your payment receipt has been submitted and is currently locked in our staff verification queue. 
+          <strong>You cannot submit another payment until this transaction is approved or rejected by our team.</strong>
+        </p>
+
+        <div class="lockdown-info-box">
+          <div class="lockdown-info-grid">
+            <div class="lockdown-item">
+              <span class="lockdown-label">Target Plan</span>
+              <strong class="lockdown-val">Monthly Subscription (रु 1,000)</strong>
+            </div>
+            <div class="lockdown-item">
+              <span class="lockdown-label">Transaction Reference</span>
+              <code id="lockdownTxId" class="lockdown-code">TXN-000000</code>
+            </div>
+            <div class="lockdown-item">
+              <span class="lockdown-label">Payment Method</span>
+              <span id="lockdownMethod" class="lockdown-val">eSewa Mobile Wallet</span>
+            </div>
+            <div class="lockdown-item">
+              <span class="lockdown-label">Status</span>
+              <span class="status-badge pending">PENDING REVIEW (Under 15 Mins)</span>
+            </div>
+          </div>
+
+          <!-- Receipt Thumbnail Preview -->
+          <div id="lockdownProofWrapper" class="lockdown-proof-row hidden">
+            <span class="lockdown-label">Submitted Receipt Screenshot:</span>
+            <div class="lockdown-img-preview">
+              <img id="lockdownProofImg" src="" alt="Submitted Receipt Proof">
+            </div>
           </div>
         </div>
 
-        <div id="methodsLoading" class="loading-state hidden">
-          <div class="spinner"></div>
-          <span>Loading official payment methods...</span>
+        <div id="lockdownRejectionNotice" class="alert error hidden">
+          <!-- Populated if staff rejects -->
         </div>
 
-        <div id="methodsContainer" class="methods-grid">
-          <!-- Rendered dynamically or via fallback methods (eSewa, Khalti, Fonepay) -->
+        <div class="lockdown-actions">
+          <button type="button" id="btnCheckLockdownStatus" class="btn btn-primary">
+            <span class="btn-text">🔄 Check Verification Status</span>
+            <span class="spinner hidden"></span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="window.StudentDashboard?.switchTab('dashboard')">
+            🛡️ View Student Dashboard
+          </button>
         </div>
-
-        <div id="noMethodsAlert" class="empty-methods-note hidden">
-          <div class="empty-icon">ℹ️</div>
-          <div>
-            <h4>Direct Transfer Details</h4>
-            <p>Please enter your payment method and transaction ID in the form below. Our administrative team will verify your receipt promptly.</p>
-          </div>
-        </div>
+        <p class="lockdown-foot">Staff actively review submissions between 8 AM – 11 PM NPT. Need urgent assistance? Reach out in the Discord #support channel.</p>
       </section>
 
-      <!-- STEP 3: PROOF SUBMISSION FORM -->
-      <section class="section-card form-section" id="formSection">
-        <div class="section-header">
-          <div class="step-badge">STEP 3</div>
-          <div>
-            <h2>Submit Payment Proof & Link Discord Account</h2>
-            <p class="section-sub">Upload your transfer screenshot. Your verified Discord account will be linked to automate role activation.</p>
+      <!-- CHECKOUT WIZARD CONTAINER (Active when no submission is pending) -->
+      <div id="wizardMainContainer">
+        <!-- Visual Stepper Nav (4 Sequential Steps) -->
+        <nav class="stepper-nav" aria-label="Checkout Progress">
+          <div class="step-item active" id="stepIndicator1">
+            <div class="step-num">1</div>
+            <div class="step-meta">
+              <span class="step-label">Select Method</span>
+              <span class="step-desc">eSewa • Khalti • Bank</span>
+            </div>
           </div>
-        </div>
+          <div class="step-divider"></div>
+          <div class="step-item" id="stepIndicator2">
+            <div class="step-num">2</div>
+            <div class="step-meta">
+              <span class="step-label">Scan QR</span>
+              <span class="step-desc">Transfer रु 1,000</span>
+            </div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item" id="stepIndicator3">
+            <div class="step-num">3</div>
+            <div class="step-meta">
+              <span class="step-label">Student Details</span>
+              <span class="step-desc">Discord Auto-Fill</span>
+            </div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item" id="stepIndicator4">
+            <div class="step-num">4</div>
+            <div class="step-meta">
+              <span class="step-label">Upload Proof</span>
+              <span class="step-desc">Receipt Screenshot</span>
+            </div>
+          </div>
+        </nav>
 
-        <!-- Discord Security Notice / Connect Prompt -->
-        <div id="discordFormBanner" class="discord-verification-banner">
-          <div class="banner-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-            </svg>
+        <!-- WIZARD STEP 1: SELECT PAYMENT METHOD -->
+        <section class="section-card wizard-panel active" id="wizardStep1">
+          <div class="section-header">
+            <div class="step-badge">STEP 1 OF 4</div>
+            <div>
+              <h2>Choose Your Payment Method</h2>
+              <p class="section-sub">Select your digital wallet or mobile banking app to pay रु 1,000 for your Monthly Subscription.</p>
+            </div>
           </div>
-          <div class="banner-content">
-            <h4 id="discordBannerTitle">🔒 Secure Discord ID Verification</h4>
-            <p id="discordBannerDesc">Connect your Discord account so our bot can verify your snowflake ID and automatically grant your subscription roles.</p>
-          </div>
-          <button type="button" class="btn btn-discord-sm" id="btnConnectInForm">Connect Account</button>
-        </div>
 
-        <form id="paymentProofForm">
-          <!-- Live Selected Summary Banner -->
-          <div class="selection-summary-banner">
-            <div class="summary-item">
-              <span class="summary-label">Target Plan:</span>
-              <strong id="summaryTierName">Monthly All-Access Subscription</strong>
+          <div id="methodsContainer" class="methods-grid">
+            <!-- Populated dynamically with eSewa, Khalti, Fonepay -->
+          </div>
+
+          <div class="wizard-actions">
+            <div></div>
+            <button type="button" class="btn btn-primary btn-large" id="btnStep1Next">
+              <span>Continue to QR Payment ➔</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- WIZARD STEP 2: SCAN QR CODE & TRANSFER -->
+        <section class="section-card wizard-panel hidden" id="wizardStep2">
+          <div class="section-header">
+            <div class="step-badge">STEP 2 OF 4</div>
+            <div>
+              <h2>Scan QR Code & Transfer रु 1,000</h2>
+              <p class="section-sub">Scan the official QR code in your app or transfer directly using the account details below.</p>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">Payment Method:</span>
-              <strong id="summaryMethodName">eSewa Mobile Wallet</strong>
+          </div>
+
+          <!-- Active QR Card Display -->
+          <div id="activeQrCard" class="active-qr-showcase">
+            <div class="qr-showcase-left">
+              <div class="qr-zoom-wrapper" id="step2QrClickZone" title="Click to zoom in">
+                <img id="step2QrImg" src="" alt="Payment QR Code" class="method-qr-img-large">
+                <span class="zoom-pill">🔍 Click to Zoom</span>
+              </div>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">Total Amount:</span>
-              <strong class="summary-price" id="summaryAmount">रु 1,000</strong>
+            <div class="qr-showcase-right">
+              <div class="method-brand-pill">
+                <span id="step2MethodEmoji">🟢</span>
+                <strong id="step2MethodTitle">eSewa Mobile Wallet</strong>
+              </div>
+
+              <div class="qr-detail-box">
+                <div class="detail-item">
+                  <span class="detail-label">Account Holder / Name:</span>
+                  <div class="account-copy-row">
+                    <strong class="account-val" id="step2AccName">The Elite Circle Academy</strong>
+                    <button type="button" class="btn-copy" id="step2CopyNameBtn" data-copy="The Elite Circle Academy">Copy</button>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <span class="detail-label">eSewa ID / Account Number:</span>
+                  <div class="account-copy-row">
+                    <strong class="account-val" id="step2AccNumber">9801234567</strong>
+                    <button type="button" class="btn-copy" id="step2CopyNumberBtn" data-copy="9801234567">Copy</button>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <span class="detail-label">Exact Amount to Pay:</span>
+                  <strong class="summary-price">रु 1,000</strong>
+                </div>
+              </div>
+
+              <div class="qr-instructions-pill" id="step2Instructions">
+                💡 <strong>Important:</strong> Enter your <strong>Discord Username</strong> in the remarks before sending. Take a screenshot of the completed payment receipt!
+              </div>
             </div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnStep2Back">
+              <span>← Back to Methods</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-large" id="btnStep2Next">
+              <span>I Have Paid रु 1,000 ➔ Enter Details</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- WIZARD STEP 3: STUDENT DETAILS (DISCORD AUTO-FILL) -->
+        <section class="section-card wizard-panel hidden" id="wizardStep3">
+          <div class="section-header">
+            <div class="step-badge">STEP 3 OF 4</div>
+            <div>
+              <h2>Enter Student Details & Discord Verification</h2>
+              <p class="section-sub">Connect your Discord account to auto-fill your profile and lock in your verified Snowflake ID.</p>
+            </div>
+          </div>
+
+          <!-- Discord Security Banner / Auto-fill prompt -->
+          <div id="discordFormBanner" class="discord-verification-banner">
+            <div class="banner-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+              </svg>
+            </div>
+            <div class="banner-content">
+              <h4 id="discordBannerTitle">🔒 Secure Discord ID Verification</h4>
+              <p id="discordBannerDesc">Connect your Discord account to auto-fill your name, email, and lock in your verified Discord Snowflake ID.</p>
+            </div>
+            <button type="button" class="btn btn-discord-sm" id="btnConnectInForm">Connect Account</button>
           </div>
 
           <div class="form-grid">
@@ -263,21 +325,21 @@
             <div class="form-group">
               <label for="studentName">Student Full Name <span class="required">*</span></label>
               <input type="text" id="studentName" name="studentName" placeholder="e.g. Ramesh Shrestha" required autocomplete="name">
-              <span class="field-hint">Your legal name or account name</span>
+              <span class="field-hint">Auto-filled from Discord or enter your name</span>
             </div>
 
             <!-- Contact Phone Number -->
             <div class="form-group">
               <label for="phoneNumber">Mobile / WhatsApp Number <span class="required">*</span></label>
               <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="e.g. +977 9801234567" required autocomplete="tel">
-              <span class="field-hint">Used for fast receipt confirmation via WhatsApp / SMS</span>
+              <span class="field-hint">Used for fast verification confirmation</span>
             </div>
 
             <!-- Account Email -->
             <div class="form-group">
               <label for="email">Account Email Address <span class="required">*</span></label>
               <input type="email" id="email" name="email" placeholder="e.g. student@academy.edu.np" required autocomplete="email">
-              <span class="field-hint">Must match your Academy student profile</span>
+              <span class="field-hint">Must match your Academy account email</span>
             </div>
 
             <!-- Discord Username or User ID -->
@@ -287,43 +349,66 @@
                 <span id="discordVerifiedBadge" class="verified-status-tag hidden">✓ Verified via OAuth</span>
               </div>
               <input type="text" id="discordId" name="discordId" placeholder="e.g. alex_videoads or 1849204910293847" required>
-              <span class="field-hint" id="discordIdHint">Connect your Discord account above to lock and verify automatically</span>
+              <span class="field-hint" id="discordIdHint">Connect Discord above to lock your ID automatically</span>
             </div>
 
-            <!-- Payment Method Dropdown -->
-            <div class="form-group">
-              <label for="paymentMethod">Payment Method Used <span class="required">*</span></label>
-              <select id="paymentMethod" name="paymentMethod" required>
-                <option value="" disabled>Select payment method...</option>
-                <option value="eSewa Mobile Wallet" selected>eSewa Mobile Wallet</option>
-                <option value="Khalti Digital Wallet">Khalti Digital Wallet</option>
-                <option value="Fonepay / Mobile Banking QR">Fonepay / Mobile Banking QR</option>
-                <option value="Direct Bank Wire Transfer">Direct Bank Wire Transfer</option>
-                <option value="Cash / In-Person Deposit">Cash / In-Person Deposit</option>
-                <option value="Other Method">Other Method</option>
-              </select>
-              <span class="field-hint">Automatically selected when clicking a payment card above</span>
-            </div>
-
-            <!-- Transaction ID / Reference -->
-            <div class="form-group">
+            <!-- Transaction Reference -->
+            <div class="form-group full-width">
               <label for="transactionId">Transaction Reference / ID <span class="required">*</span></label>
               <input type="text" id="transactionId" name="transactionId" placeholder="e.g. 7A8B9C10 or eSewa Ref No." required>
-              <span class="field-hint">The reference number printed on your transfer receipt</span>
+              <span class="field-hint">The transaction code or reference number from your transfer confirmation</span>
+            </div>
+          </div>
+
+          <div id="step3Alert" class="alert hidden"></div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnStep3Back">
+              <span>← Back to QR</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-large" id="btnStep3Next">
+              <span>Next: Upload Receipt Proof ➔</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- WIZARD STEP 4: UPLOAD PAYMENT PROOF & SUBMIT -->
+        <section class="section-card wizard-panel hidden" id="wizardStep4">
+          <div class="section-header">
+            <div class="step-badge">STEP 4 OF 4</div>
+            <div>
+              <h2>Upload Receipt Screenshot & Confirm</h2>
+              <p class="section-sub">Upload your payment screenshot to route into the Supabase verification queue.</p>
+            </div>
+          </div>
+
+          <form id="paymentProofForm">
+            <!-- Summary Review Box -->
+            <div class="selection-summary-banner">
+              <div class="summary-item">
+                <span class="summary-label">Plan:</span>
+                <strong id="summaryTierName">Monthly Subscription</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Method:</span>
+                <strong id="summaryMethodName">eSewa Mobile Wallet</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Total Amount:</span>
+                <strong class="summary-price" id="summaryAmount">रु 1,000</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Discord ID:</span>
+                <strong id="summaryDiscordId">Not Connected</strong>
+              </div>
             </div>
 
-            <!-- Amount Paid (Synced with NPR 1000) -->
-            <div class="form-group">
-              <label for="amount">Total Amount Paid (NPR रु) <span class="required">*</span></label>
-              <div class="input-currency-wrapper">
-                <span class="currency-symbol">रु</span>
-                <input type="number" id="amount" name="amount" step="10" min="100" value="1000" required>
-              </div>
-              <span class="field-hint">Synced with selected tier or custom transfer</span>
-            </div>
+            <!-- Hidden input for amount sync -->
+            <input type="hidden" id="amount" name="amount" value="1000">
+            <input type="hidden" id="paymentMethod" name="paymentMethod" value="eSewa Mobile Wallet">
 
             <!-- Receipt Screenshot Upload -->
-            <div class="form-group full-width">
+            <div class="form-group full-width mt-15">
               <label>Payment Receipt / Screenshot <span class="required">*</span></label>
               <div class="upload-container">
                 <div class="file-drop-zone" id="dropZone">
@@ -341,7 +426,7 @@
                       <div class="preview-details">
                         <strong id="previewFileName">receipt.jpg</strong>
                         <span id="previewFileSize">1.2 MB</span>
-                        <span class="badge-ready">✓ Ready to upload</span>
+                        <span class="badge-ready">✓ Ready for Supabase Storage</span>
                       </div>
                     </div>
                     <button type="button" id="removeReceiptBtn" class="btn-remove-preview" title="Remove image">🗑️ Change Image</button>
@@ -350,92 +435,33 @@
 
                 <div class="url-fallback-row">
                   <span class="or-badge">OR</span>
-                  <input type="url" id="proofUrl" name="proofUrl" placeholder="Paste hosted receipt link (e.g. Imgur, Cloudinary, Drive)">
+                  <input type="url" id="proofUrl" name="proofUrl" placeholder="Paste hosted receipt link (e.g. Imgur, Drive, Cloudinary)">
                 </div>
               </div>
-              <span class="field-hint">Clear screenshot showing the transaction ID, date, and amount sent</span>
             </div>
 
             <!-- Additional Notes / Remarks -->
             <div class="form-group full-width">
-              <label for="notes">Additional Remarks / Notes <span class="optional">(Optional)</span></label>
+              <label for="notes">Additional Remarks / Transfer Notes <span class="optional">(Optional)</span></label>
               <textarea id="notes" name="notes" rows="2" placeholder="Sender account name, transfer remarks entered in banking app, etc."></textarea>
             </div>
-          </div>
 
-          <!-- Alert messages -->
-          <div id="statusAlert" class="alert hidden"></div>
+            <!-- Alert messages -->
+            <div id="statusAlert" class="alert hidden"></div>
 
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
-              <span class="btn-text">Submit Payment Proof for Verification</span>
-              <span class="spinner hidden"></span>
-            </button>
-            <p class="guarantee-note">🔒 Verified submission pipeline. Automated Discord role synchronization upon approval.</p>
-          </div>
-        </form>
-
-        <!-- Success Screen -->
-        <div id="successCard" class="success-card hidden">
-          <div class="success-animation-wrapper">
-            <div class="checkmark-circle">
-              <div class="checkmark-stem"></div>
-              <div class="checkmark-kick"></div>
+            <div class="wizard-actions">
+              <button type="button" class="btn btn-secondary" id="btnStep4Back">
+                <span>← Back to Details</span>
+              </button>
+              <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
+                <span class="btn-text">Submit Payment Proof for Verification</span>
+                <span class="spinner hidden"></span>
+              </button>
             </div>
-          </div>
-          <h2>Payment Proof Submitted Successfully!</h2>
-          <p class="success-desc">Thank you! Your payment verification has been routed to our verification queue. You can check your membership status in your dashboard.</p>
-
-          <div class="reference-box">
-            <span class="reference-title">Transaction Tracking Reference</span>
-            <div class="reference-code-wrapper">
-              <code id="confirmedTxId">TXN-000000</code>
-              <button type="button" class="btn-copy-ref" id="copyRefBtn">Copy Ref</button>
-            </div>
-            <div class="verification-status-pill">
-              <span class="status-indicator-dot"></span>
-              <span>PENDING VERIFICATION (Average: Under 15 mins)</span>
-            </div>
-          </div>
-
-          <div class="timeline-card">
-            <h3>What Happens Next?</h3>
-            <div class="timeline-steps">
-              <div class="t-step active">
-                <div class="t-bullet">1</div>
-                <div class="t-text">
-                  <strong>Receipt Logged</strong>
-                  <p>Added to student verification record.</p>
-                </div>
-              </div>
-              <div class="t-step">
-                <div class="t-bullet">2</div>
-                <div class="t-text">
-                  <strong>Staff Confirmation</strong>
-                  <p>Admin confirms statement on eSewa / Khalti / Bank.</p>
-                </div>
-              </div>
-              <div class="t-step">
-                <div class="t-bullet">3</div>
-                <div class="t-text">
-                  <strong>Discord Role Granted</strong>
-                  <p>Bot automatically applies your subscription role!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="success-actions">
-            <button type="button" class="btn btn-primary" onclick="window.StudentDashboard?.switchTab('dashboard')">
-              🛡️ View My Plan & Roles
-            </button>
-            <button type="button" class="btn btn-secondary" onclick="window.location.reload()">
-              Submit Another Proof
-            </button>
-          </div>
-        </div>
-      </section>
+            <p class="guarantee-note mt-15">🔒 Your receipt screenshot is saved to Supabase Storage and locked in verification queue. Automated Discord role assignment upon review.</p>
+          </form>
+        </section>
+      </div>
     </main>
 
     <!-- =========================================================================
