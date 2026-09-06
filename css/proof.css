@@ -1293,6 +1293,20 @@ textarea:focus {
   .tier-grid {
     grid-template-columns: 1fr;
   }
+  .tier-grid.two-cards {
+    grid-template-columns: 1fr;
+  }
+  .portal-navbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .nav-tabs {
+    justify-content: center;
+  }
+  .nav-auth-area {
+    justify-content: center;
+  }
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -1310,4 +1324,904 @@ textarea:focus {
     align-items: flex-start;
     gap: 8px;
   }
+  .plan-details-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .dash-action-bar {
+    flex-direction: column;
+  }
 }
+
+/* ==========================================================================
+   PORTAL NAVBAR & TAB SWITCHER
+   ========================================================================== */
+.portal-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(18, 24, 36, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.brand-tag {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.nav-tabs {
+  display: flex;
+  background: rgba(9, 12, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.tab-icon {
+  font-size: 0.95rem;
+}
+
+/* Nav Discord Auth area */
+.nav-auth-area {
+  display: flex;
+  align-items: center;
+}
+
+.btn-discord-connect {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #fff;
+  background: #5865F2;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-discord-connect:hover {
+  background: #4752C4;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
+}
+
+.user-pill-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  padding: 4px 12px 4px 6px;
+  border-radius: 30px;
+}
+
+.user-profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #5865F2;
+  object-fit: cover;
+}
+
+.nav-user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.nav-user-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.nav-user-id {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.verified-tag-mini {
+  background: var(--success);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-logout {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================================================
+   2-CARD TIER GRID (MONTHLY & 3-TIER ACCESS)
+   ========================================================================== */
+.tier-grid.two-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.featured-ribbon.vip {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.tier-role-grant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(88, 101, 242, 0.1);
+  border: 1px solid rgba(88, 101, 242, 0.25);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.84rem;
+  color: #c7d2fe;
+}
+
+.tier-card[data-tier-id="tier3"] .tier-role-grant {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #fde68a;
+}
+
+/* ==========================================================================
+   NEPALI PAYMENT METHODS STYLING
+   ========================================================================== */
+.method-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.method-emoji {
+  font-size: 1.2rem;
+}
+
+.method-badge-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+/* ==========================================================================
+   DISCORD FORM BANNER & LOCKED INPUTS
+   ========================================================================== */
+.discord-verification-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(88, 101, 242, 0.08);
+  border: 1px solid rgba(88, 101, 242, 0.25);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.discord-verification-banner.verified-banner {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.banner-icon {
+  color: #5865F2;
+  flex-shrink: 0;
+}
+
+.verified-banner .banner-icon {
+  color: var(--success);
+}
+
+.banner-content {
+  flex-grow: 1;
+}
+
+.banner-content h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.96rem;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.banner-content p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.btn-discord-sm {
+  background: #5865F2;
+  color: #fff;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-discord-sm:hover {
+  background: #4752C4;
+}
+
+.verified-status-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.input-locked {
+  background: rgba(9, 12, 16, 0.7) !important;
+  color: #818cf8 !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   STUDENT DASHBOARD STYLES
+   ========================================================================== */
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.user-hero-card {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(18, 24, 36, 0.95), rgba(23, 31, 48, 0.85));
+}
+
+.dash-user-flex {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dash-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dash-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #5865F2;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--success);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+}
+
+.dash-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dash-name-row h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.verified-badge-pill {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #000;
+  background: var(--success);
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px var(--success-glow);
+}
+
+.dash-snowflake-id {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.plan-overview-card {
+  padding: 28px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, rgba(18, 24, 36, 0.95), rgba(30, 27, 75, 0.35));
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.plan-type-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #818cf8;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.plan-card-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.status-badge {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.status-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--success);
+  color: #34d399;
+  box-shadow: 0 0 15px var(--success-glow);
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--accent);
+  color: #fbbf24;
+}
+
+.status-badge.expired {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--danger);
+  color: #f87171;
+}
+
+.status-badge.guest {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+}
+
+.plan-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  background: rgba(9, 12, 16, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.plan-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.role-chip {
+  display: inline-block;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid;
+  width: fit-content;
+}
+
+.countdown-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.countdown-timer {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.countdown-timer.active {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #c7d2fe;
+}
+
+.countdown-timer.pending {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fde68a;
+}
+
+.countdown-timer.expired {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.sync-feedback.success {
+  font-size: 0.82rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.dash-action-bar {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-renew {
+  flex-grow: 1;
+}
+
+/* History List */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-subtle);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.history-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-ref {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.history-date {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.history-tier {
+  font-size: 0.82rem;
+  color: #c7d2fe;
+}
+
+.history-method {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.history-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.history-amount {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.history-status {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.history-status.verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.history-status.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.history-status.rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dash-lock-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.max-w-500 {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mt-10 { margin-top: 10px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+
+.btn-discord-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #5865F2;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+}
+
+.btn-discord-large:hover {
+  background: #4752C4;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   DISCORD AUTH MODAL
+   ========================================================================== */
+.discord-modal-card {
+  max-width: 520px;
+}
+
+.discord-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-discord {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #5865F2;
+  color: #fff;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-discord:hover {
+  background: #4752C4;
+}
+
+.btn-discord.btn-large {
+  padding: 14px 20px;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.35);
+}
+
+.divider-text {
+  text-align: center;
+  position: relative;
+  margin: 20px 0;
+}
+
+.divider-text::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.divider-text span {
+  position: relative;
+  background: var(--surface);
+  padding: 0 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.6px;
+}
+
+.dev-quick-connect-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.dev-quick-connect-card h4 {
+  font-size: 0.92rem;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.form-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.config-accordion {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
+.config-accordion summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.config-accordion summary:hover {
+  color: #fff;
+}
+
+.config-accordion-body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.small-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.small-text a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+.active-client-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #c7d2fe;
+  margin-bottom: 16px;
+}
+
+.redirect-uri-helper {
+  background: rgba(9, 12, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.redirect-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.redirect-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #818cf8;
+  letter-spacing: 0.5px;
+}
+
+.btn-copy-mini {
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #c7d2fe;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-copy-mini:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+.redirect-uri-helper code {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #38bdf8;
+  word-break: break-all;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.redirect-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.redirect-hint a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+

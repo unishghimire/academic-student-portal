@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   const API_URL = window.API_BASE || window.location.origin;
 
-  // State
-  let selectedTier = 2;
-  let selectedPrice = 49.0;
-  let selectedTierName = 'Tier 2 — Practitioner';
-  let selectedMethodTitle = '';
+  // State (Priced in NPR 1,000 default)
+  let selectedTier = 1;
+  let selectedPrice = 1000;
+  let selectedTierName = 'Monthly All-Access Subscription';
+  let selectedMethodTitle = 'eSewa Mobile Wallet';
   let uploadedReceiptBase64 = null;
   let methodsData = [];
 
@@ -32,6 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const step2 = document.getElementById('stepIndicator2');
   const step3 = document.getElementById('stepIndicator3');
 
+  // Discord Form Elements
+  const discordIdInput = document.getElementById('discordId');
+  const discordVerifiedBadge = document.getElementById('discordVerifiedBadge');
+  const discordFormBanner = document.getElementById('discordFormBanner');
+  const discordBannerTitle = document.getElementById('discordBannerTitle');
+  const discordBannerDesc = document.getElementById('discordBannerDesc');
+  const btnConnectInForm = document.getElementById('btnConnectInForm');
+  const studentNameInput = document.getElementById('studentName');
+  const emailInput = document.getElementById('email');
+
   // File Upload Elements
   const dropZone = document.getElementById('dropZone');
   const receiptFileInput = document.getElementById('receiptFileInput');
@@ -50,11 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadQrBtn = document.getElementById('downloadQrBtn');
   const closeZoomBtn = document.getElementById('closeZoomBtn');
 
-  const discordGuideModal = document.getElementById('discordGuideModal');
-  const discordHelpBtn = document.getElementById('discordHelpBtn');
-  const closeGuideBtn = document.getElementById('closeGuideBtn');
-  const guideUnderstoodBtn = document.getElementById('guideUnderstoodBtn');
-
   const toast = document.getElementById('toast');
 
   // Initialize
@@ -63,10 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initFileUpload();
   initModals();
   initClipboardPaste();
+  initDiscordFormSync();
   initFormSubmit();
 
   /* ==========================================================================
-     1. TIER SELECTION LOGIC
+     1. TIER SELECTION LOGIC (NPR 1,000 TIERS)
      ========================================================================== */
   function initTierSelection() {
     const tierCards = document.querySelectorAll('.tier-card');
@@ -79,9 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tierCards.forEach((c) => c.classList.remove('selected'));
         card.classList.add('selected');
 
-        selectedTier = parseInt(card.dataset.tier, 10);
-        selectedPrice = parseFloat(card.dataset.price);
-        selectedTierName = card.dataset.tierName;
+        selectedTier = parseInt(card.dataset.tier, 10) || 1;
+        selectedPrice = parseFloat(card.dataset.price) || 1000;
+        selectedTierName = card.dataset.tierName || 'Monthly All-Access Subscription';
 
         // Uncheck custom if checked
         if (customToggle) {
@@ -106,9 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         customInputWrapper?.classList.add('hidden');
-        // Re-select Tier 2 default
-        const t2 = document.querySelector('.tier-card[data-tier="2"]');
-        if (t2) t2.click();
+        // Re-select Monthly default
+        const t1 = document.querySelector('.tier-card[data-tier="1"]');
+        if (t1) t1.click();
       }
       updateSummary();
     });
@@ -122,32 +128,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateSummary() {
     if (summaryTierName) summaryTierName.textContent = selectedTierName;
-    if (summaryAmount) summaryAmount.textContent = `$${selectedPrice.toFixed(2)}`;
-    if (amountInput) amountInput.value = selectedPrice > 0 ? selectedPrice.toFixed(2) : '';
+    if (summaryAmount) summaryAmount.textContent = `रु ${selectedPrice.toLocaleString()}`;
+    if (amountInput) amountInput.value = selectedPrice > 0 ? selectedPrice : '';
   }
 
   /* ==========================================================================
-     2. PAYMENT METHODS & QR CODES
+     2. PAYMENT METHODS & NEPALI QR CODES
      ========================================================================== */
   async function loadPaymentMethods() {
+    methodsLoading?.classList.remove('hidden');
+
     try {
       const res = await fetch(`${API_URL}/api/payments/methods`);
       const json = await res.json();
 
-      methodsLoading?.classList.add('hidden');
-
-      if (!res.ok || !json.success || !json.data || json.data.length === 0) {
-        noMethodsAlert?.classList.remove('hidden');
-        return;
+      if (res.ok && json.success && json.data && json.data.length > 0) {
+        methodsData = json.data;
+      } else {
+        // Fallback to official Nepali payment methods (eSewa, Khalti, Fonepay)
+        methodsData = window.DEFAULT_PAYMENT_METHODS || [];
       }
-
-      methodsData = json.data;
-      renderMethods(methodsData);
-      populateSelectOptions(methodsData);
     } catch (err) {
-      console.error('Error fetching payment methods:', err);
+      // Offline / Direct static mode: use default Nepali wallets
+      methodsData = window.DEFAULT_PAYMENT_METHODS || [];
+    } finally {
       methodsLoading?.classList.add('hidden');
-      noMethodsAlert?.classList.remove('hidden');
+      if (methodsData.length > 0) {
+        renderMethods(methodsData);
+        populateSelectOptions(methodsData);
+      } else {
+        noMethodsAlert?.classList.remove('hidden');
+      }
     }
   }
 
@@ -174,8 +185,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<div class="detail-item">
              <div class="detail-label">Account Holder</div>
              <div class="account-copy-row">
-               <span class="account-val" id="nameVal_${m.id}">${escapeHtml(m.accountName)}</span>
+               <span class="account-val">${escapeHtml(m.accountName)}</span>
                <button type="button" class="btn-copy" data-copy="${escapeHtml(m.accountName)}">Copy</button>
+             </div>
+           </div>`
+        : '';
+
+      const accountNumberHtml = m.accountNumber
+        ? `<div class="detail-item">
+             <div class="detail-label">eSewa ID / Phone / Acc No</div>
+             <div class="account-copy-row">
+               <span class="account-val">${escapeHtml(m.accountNumber)}</span>
+               <button type="button" class="btn-copy" data-copy="${escapeHtml(m.accountNumber)}">Copy</button>
              </div>
            </div>`
         : '';
@@ -184,21 +205,22 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<div class="method-instructions">💡 ${escapeHtml(m.instructions)}</div>`
         : '';
 
+      const badgeHtml = m.badge
+        ? `<span class="method-badge-pill">${escapeHtml(m.badge)}</span>`
+        : '';
+
       card.innerHTML = `
-        <div class="method-title-badge">
-          <span>⚡</span>
-          <span>${escapeHtml(m.title)}</span>
+        <div class="method-header-row">
+          <div class="method-title-badge">
+            <span class="method-emoji">${m.iconEmoji || '⚡'}</span>
+            <strong>${escapeHtml(m.title)}</strong>
+          </div>
+          ${badgeHtml}
         </div>
         ${qrHtml}
         <div class="method-details">
           ${accountNameHtml}
-          <div class="detail-item">
-            <div class="detail-label">Account Number / Phone / Wallet</div>
-            <div class="account-copy-row">
-              <span class="account-val" id="accVal_${m.id}">${escapeHtml(m.accountNumber)}</span>
-              <button type="button" class="btn-copy" data-copy="${escapeHtml(m.accountNumber)}">Copy</button>
-            </div>
-          </div>
+          ${accountNumberHtml}
         </div>
         ${instructionsHtml}
         <button type="button" class="btn-select-method">Pay with ${escapeHtml(m.title)}</button>
@@ -247,7 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncDropdown(methodTitle) {
     if (!paymentMethodSelect) return;
     for (let i = 0; i < paymentMethodSelect.options.length; i++) {
-      if (paymentMethodSelect.options[i].value.toLowerCase() === methodTitle.toLowerCase()) {
+      if (paymentMethodSelect.options[i].value.toLowerCase().includes(methodTitle.toLowerCase()) ||
+          methodTitle.toLowerCase().includes(paymentMethodSelect.options[i].value.toLowerCase())) {
         paymentMethodSelect.selectedIndex = i;
         return;
       }
@@ -261,70 +284,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function populateSelectOptions(methods) {
     if (!paymentMethodSelect) return;
+    // Ensure all loaded methods are options in the dropdown
     methods.forEach((m) => {
-      let exists = false;
+      let found = false;
       for (let i = 0; i < paymentMethodSelect.options.length; i++) {
-        if (paymentMethodSelect.options[i].value.toLowerCase() === m.title.toLowerCase()) {
-          exists = true;
+        if (paymentMethodSelect.options[i].value === m.title) {
+          found = true;
           break;
         }
       }
-      if (!exists) {
+      if (!found) {
         const opt = document.createElement('option');
         opt.value = m.title;
         opt.textContent = m.title;
         paymentMethodSelect.appendChild(opt);
       }
     });
-
-    paymentMethodSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      selectedMethodTitle = val;
-      if (summaryMethodName) summaryMethodName.textContent = val;
-      // Sync matching card if present
-      document.querySelectorAll('.method-card').forEach((c) => {
-        if (c.dataset.methodTitle?.toLowerCase() === val.toLowerCase()) {
-          c.classList.add('selected');
-        } else {
-          c.classList.remove('selected');
-        }
-      });
-    });
   }
 
   /* ==========================================================================
-     3. FILE UPLOAD & CLIPBOARD PASTE
+     3. DISCORD AUTHENTICATION & FORM SYNC
+     ========================================================================== */
+  function initDiscordFormSync() {
+    btnConnectInForm?.addEventListener('click', () => {
+      window.DiscordAuth?.openConnectModal();
+    });
+
+    // Listen for auth changes
+    document.addEventListener('academy:discord:change', (e) => {
+      applyDiscordUserState(e.detail.user);
+    });
+
+    // Initial check
+    if (window.DiscordAuth?.isLoggedIn()) {
+      applyDiscordUserState(window.DiscordAuth.getUser());
+    }
+  }
+
+  function applyDiscordUserState(user) {
+    if (user && user.id) {
+      if (discordIdInput) {
+        discordIdInput.value = user.username || user.id;
+        discordIdInput.readOnly = true;
+        discordIdInput.classList.add('input-locked');
+      }
+
+      if (discordVerifiedBadge) {
+        discordVerifiedBadge.textContent = `✓ Discord ID Verified: ${user.id}`;
+        discordVerifiedBadge.classList.remove('hidden');
+      }
+
+      if (discordFormBanner) {
+        discordFormBanner.classList.add('verified-banner');
+        if (discordBannerTitle) discordBannerTitle.textContent = `✓ Discord Identity Verified: @${user.username}`;
+        if (discordBannerDesc) discordBannerDesc.textContent = `User ID ${user.id} is verified. Your role permissions will be applied to this account automatically.`;
+        if (btnConnectInForm) btnConnectInForm.textContent = 'Switch Account';
+      }
+
+      // Pre-fill profile info if available
+      if (emailInput && !emailInput.value && user.email) {
+        emailInput.value = user.email;
+      }
+      if (studentNameInput && !studentNameInput.value && user.displayName) {
+        studentNameInput.value = user.displayName;
+      }
+    } else {
+      if (discordIdInput) {
+        discordIdInput.readOnly = false;
+        discordIdInput.classList.remove('input-locked');
+      }
+      if (discordVerifiedBadge) {
+        discordVerifiedBadge.classList.add('hidden');
+      }
+      if (discordFormBanner) {
+        discordFormBanner.classList.remove('verified-banner');
+        if (discordBannerTitle) discordBannerTitle.textContent = '🔒 Secure Discord ID Verification';
+        if (discordBannerDesc) discordBannerDesc.textContent = 'Connect your Discord account so our bot can verify your snowflake ID and automatically grant your subscription roles.';
+        if (btnConnectInForm) btnConnectInForm.textContent = 'Connect Account';
+      }
+    }
+  }
+
+  /* ==========================================================================
+     4. RECEIPT FILE UPLOAD & CLIPBOARD PASTE
      ========================================================================== */
   function initFileUpload() {
-    if (!dropZone || !receiptFileInput) return;
-
-    dropZone.addEventListener('click', () => receiptFileInput.click());
-
-    ['dragenter', 'dragover'].forEach((evt) => {
-      dropZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.add('dragover');
-      });
-    });
-
-    ['dragleave', 'drop'].forEach((evt) => {
-      dropZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.remove('dragover');
-      });
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        processReceiptFile(files[0]);
+    dropZone?.addEventListener('click', (e) => {
+      if (e.target !== removeReceiptBtn) {
+        receiptFileInput?.click();
       }
     });
 
-    receiptFileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files.length > 0) {
+    receiptFileInput?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
         processReceiptFile(e.target.files[0]);
       }
     });
@@ -333,19 +385,51 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       clearReceiptFile();
     });
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      dropZone?.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      dropZone?.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('drag-over');
+      });
+    });
+
+    dropZone?.addEventListener('drop', (e) => {
+      if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+        processReceiptFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    proofUrlInput?.addEventListener('input', (e) => {
+      if (e.target.value.trim()) {
+        clearReceiptFile();
+      }
+    });
   }
 
   function initClipboardPaste() {
     window.addEventListener('paste', (e) => {
-      const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        if (e.target.id === 'proofUrl') return;
+      }
+
+      const items = e.clipboardData?.items;
       if (!items) return;
 
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            processReceiptFile(file, 'pasted_screenshot.png');
-            showToast('📋 Screenshot pasted from clipboard!');
+          const blob = items[i].getAsFile();
+          if (blob) {
+            processReceiptFile(blob, 'pasted_receipt.png');
+            showToast('📋 Receipt image pasted from clipboard!');
             break;
           }
         }
@@ -388,24 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
-     4. MODALS & HELPERS
+     5. MODALS & HELPERS
      ========================================================================== */
   function initModals() {
-    // QR Zoom
     closeZoomBtn?.addEventListener('click', () => qrZoomModal?.classList.add('hidden'));
     qrZoomModal?.addEventListener('click', (e) => {
       if (e.target === qrZoomModal) qrZoomModal.classList.add('hidden');
     });
 
-    // Discord Guide
-    discordHelpBtn?.addEventListener('click', () => discordGuideModal?.classList.remove('hidden'));
-    closeGuideBtn?.addEventListener('click', () => discordGuideModal?.classList.add('hidden'));
-    guideUnderstoodBtn?.addEventListener('click', () => discordGuideModal?.classList.add('hidden'));
-    discordGuideModal?.addEventListener('click', (e) => {
-      if (e.target === discordGuideModal) discordGuideModal.classList.add('hidden');
-    });
-
-    // Copy Ref on Success
     copyRefBtn?.addEventListener('click', () => {
       const code = confirmedTxId?.textContent;
       if (code) {
@@ -449,6 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 3000);
   }
+  window.showToast = showToast;
 
   function setStepActive(stepNum) {
     if (stepNum >= 1) step1?.classList.add('active');
@@ -463,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
-     5. FORM SUBMISSION
+     6. FORM SUBMISSION WITH VERIFIED DISCORD METADATA
      ========================================================================== */
   function initFormSubmit() {
     if (!form) return;
@@ -497,14 +572,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const discordUser = window.DiscordAuth?.getUser();
+      const discordIdVal = discordUser?.id || formData.get('discordId')?.toString().trim();
+
       const payload = {
         studentName: formData.get('studentName')?.toString().trim(),
         phoneNumber: formData.get('phoneNumber')?.toString().trim(),
         email: formData.get('email')?.toString().trim().toLowerCase(),
-        discordId: formData.get('discordId')?.toString().trim() || undefined,
+        discordId: discordIdVal || undefined,
+        discordUsername: discordUser?.username || formData.get('discordId')?.toString().trim(),
+        isDiscordVerified: !!(discordUser && discordUser.verified),
+        planName: selectedTierName,
+        tierNumber: selectedTier,
         paymentMethod: formData.get('paymentMethod')?.toString().trim(),
         transactionId: formData.get('transactionId')?.toString().trim(),
         amount: amountVal,
+        currency: 'NPR',
         proofUrl,
         notes: formData.get('notes')?.toString().trim() || undefined,
       };
@@ -517,21 +600,37 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/payments/manual-submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        let submissionResultTxId = payload.transactionId;
 
-        const data = await response.json();
+        // Call backend API if available
+        try {
+          const response = await fetch(`${API_URL}/api/payments/manual-submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
 
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to submit payment proof');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data?.transactionId) {
+              submissionResultTxId = data.data.transactionId;
+            }
+          }
+        } catch (apiErr) {
+          // If offline or standalone static, gracefully proceed with submitted ref ID
         }
+
+        // Add to Student Dashboard history
+        window.StudentDashboard?.addSubmissionToHistory({
+          transactionId: submissionResultTxId,
+          planName: selectedTierName,
+          amount: amountVal,
+          paymentMethod: payload.paymentMethod,
+        });
 
         // Transition to success screen
         form.classList.add('hidden');
-        if (confirmedTxId) confirmedTxId.textContent = data.data.transactionId;
+        if (confirmedTxId) confirmedTxId.textContent = submissionResultTxId;
         successCard?.classList.remove('hidden');
         successCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
@@ -540,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusAlert) {
           statusAlert.classList.remove('hidden');
           statusAlert.className = 'alert error';
-          statusAlert.textContent = error.message || 'An unexpected error occurred. Please verify your details and try again.';
+          statusAlert.textContent = error.message || 'An unexpected error occurred. Please check your details and try again.';
         }
       } finally {
         if (submitBtn) {

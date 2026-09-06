@@ -1,63 +1,83 @@
-# 🧾 Student Payment & Proof Verification Portal
+# 🧾 Student Payment & Discord Verification Portal
 
-The public-facing **Student Payment & Proof Portal** for **Premium AI Video Ads Academy**. This repository is fully decoupled from the bot backend and admin tools — it contains zero admin links or references.
+The public-facing **Student Payment & Discord Verification Portal** for **The Elite Circle Academy**. This portal allows students in Nepal and worldwide to securely verify their Discord accounts, enroll in subscriptions in Nepalese Rupees (NPR रु), pay via eSewa, Khalti, or Fonepay QR, check their membership status & remaining days, and renew their subscriptions with automated Discord role synchronization.
 
-Students use this portal to:
+---
 
-- View official payment methods (bank transfer / e-wallet QR codes)
-- Submit payment proof: full name, phone, email, Discord username, transaction ID, and receipt link
-- Get instant submission feedback while staff are alerted on Discord for manual verification
+## ✨ Features
 
-> **Backend:** This portal talks to the Academy Bot's Express API (`/api/...`).
-> Point it at your deployed backend by setting the `backend-api-url` meta tag in `index.html`:
+- **Discord OAuth2 Identity Verification**: Cryptographically verifies student Discord User IDs (Snowflake IDs) and Discord usernames to eliminate manual spoofing and impersonation.
+- **Student Membership Dashboard**:
+  - Live membership status (`Active`, `Pending Verification`, `Expired`)
+  - Expiry date with live days-remaining countdown
+  - Assigned Discord roles display (e.g. `@Monthly-Subscriber`, `@Tier-3 Master`)
+  - Real-time Discord role synchronization button
+  - 1-Click "Renew Subscription" workflow
+  - Payment proof submission & receipt history tracking
+- **NPR 1,000 Subscription Tiers**:
+  - **Monthly All-Access Subscription**: रु 1,000 / 30 days (Discord `@Monthly-Subscriber` role)
+  - **3-Tier All-Access Pass**: रु 1,000 (Complete Tier 1 + Tier 2 + Tier 3 bundle with Discord `@Tier-3 Master` VIP role)
+  - **Custom Amount**: For custom student invoices or institutional packages
+- **Nepali Digital Wallets & Mobile Banking**:
+  - **eSewa Mobile Wallet** (Instant transfer + QR zoom)
+  - **Khalti Digital Wallet** (Instant transfer + QR zoom)
+  - **Fonepay / Direct Bank QR** (Nabil / NIC Asia / Any Mobile Banking app)
+- **Security Hardening**: Strict Content-Security-Policy (CSP), anti-clickjacking headers, CSRF state verification, and anti-tampering locked identity fields.
+
+---
+
+## ⚙️ Configuration
+
+Set your Backend API URL and Discord Application credentials in `index.html` meta tags, `js/config.js`, or on-screen in the portal:
 
 ```html
+<!-- Backend Bot API -->
 <meta name="backend-api-url" content="https://your-bot-backend.railway.app">
+
+<!-- Discord Application Credentials (from discord.com/developers) -->
+<meta name="discord-client-id" content="YOUR_DISCORD_CLIENT_ID">
+<meta name="discord-guild-id" content="YOUR_DISCORD_GUILD_ID">
 ```
 
-If left empty, it connects to the same origin.
+### Discord OAuth2 Setup
+1. Go to [discord.com/developers/applications](https://discord.com/developers/applications)
+2. Create or select your application
+3. Under **OAuth2 ➔ General**:
+   - Add your redirect URL: `https://your-domain.vercel.app/` (or `http://localhost:3000/`)
+4. Copy your **Client ID** into `index.html` or `js/config.js`.
+
+*(Note: The portal also features an **Instant Verified Connect (Test Mode)** for immediate testing without setting up Discord developer keys).*
 
 ---
 
 ## 🚀 Deploy to Vercel
 
-### Option 1: Vercel Web Dashboard
-1. Go to [vercel.com/new](https://vercel.com/new).
-2. Import this repository.
-3. **Framework Preset**: `Other` — leave build and output settings empty.
-4. Click **Deploy**.
-
-### Option 2: Vercel CLI
 ```bash
 npm i -g vercel
 vercel --prod
 ```
 
 ### Routes
-Clean URLs are enabled via `vercel.json`:
-- `/` → checkout page
-- `/pay`, `/checkout`, `/submit-proof` → same page
+Clean URLs are configured via `vercel.json`:
+- `/` ➔ Checkout & Enrollment page
+- `/dashboard` or `/my-plan` ➔ Student Membership Dashboard
+- `/pay`, `/checkout`, `/submit-proof` ➔ Enrollment page
 
 ---
 
-## 📁 Structure
+## 📁 File Structure
 
 ```
-├── index.html      # Portal page (QR checkout + proof submission form)
-├── css/proof.css   # Dark-mode glassmorphism styles
-├── js/config.js    # Backend URL resolution + shared config
-├── js/proof.js     # Form logic, validation, and submission
-└── vercel.json     # Vercel rewrites + security headers
+├── index.html          # Dual-view portal (Checkout Stepper + Student Dashboard)
+├── css/proof.css       # Modern dark-mode glassmorphic design system
+├── js/config.js        # Discord OAuth, NPR currency, tier & payment configurations
+├── js/discord-auth.js  # Discord OAuth2 handler, token validation & session manager
+├── js/dashboard.js     # User plan inspection, role sync & payment history tracker
+├── js/proof.js         # Stepper logic, QR renderer, file drag-and-drop & form submission
+└── vercel.json         # Security headers (CSP, XSS, Frame-Options) & clean routing
 ```
 
 ---
-
-## 🔗 Related Repositories
-
-| Repository | Purpose |
-|---|---|
-| `academic-bot` | Discord bot, Express API, Prisma database (the backend) |
-| `academic-admin-panel` | Private staff dashboard for payment verification |
 
 ## 📄 License
 
