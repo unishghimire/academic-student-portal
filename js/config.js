@@ -42,8 +42,8 @@
   const storedSupabaseAnonKey = window.localStorage?.getItem('ACADEMY_SUPABASE_ANON_KEY');
 
   window.SUPABASE_CONFIG = {
-    url: window.SUPABASE_URL || metaSupabaseUrl || storedSupabaseUrl || '',
-    anonKey: window.SUPABASE_ANON_KEY || metaSupabaseAnonKey || storedSupabaseAnonKey || '',
+    url: window.SUPABASE_URL || metaSupabaseUrl || storedSupabaseUrl || 'https://snuunauwtuqyibmcajzh.supabase.co',
+    anonKey: window.SUPABASE_ANON_KEY || metaSupabaseAnonKey || storedSupabaseAnonKey || 'sb_publishable_r_4B33JNzqJuZnmfYd_Yrg_rFVqoj_4',
     bucket: 'payment-proofs',
     tableName: 'payment_verifications',
   };
