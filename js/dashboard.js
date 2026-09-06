@@ -86,7 +86,23 @@
         tabCheckoutBtn?.classList.add('active');
         dashboardView?.classList.add('hidden');
         checkoutView?.classList.remove('hidden');
+
+        // Dynamically refresh live payment methods and admin QR codes from Supabase
+        if (typeof window.refreshPortalPaymentMethods === 'function') {
+          window.refreshPortalPaymentMethods();
+        }
       }
+    }
+
+    triggerRenewal() {
+      this.switchTab('checkout');
+      if (typeof window.goToWizardStep === 'function') {
+        window.goToWizardStep(1);
+      }
+      if (typeof window.refreshPortalPaymentMethods === 'function') {
+        window.refreshPortalPaymentMethods();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     onAuthChange(user) {

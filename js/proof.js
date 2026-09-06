@@ -210,40 +210,117 @@ document.addEventListener('DOMContentLoaded', () => {
   window.goToWizardStep = goToWizardStep;
 
   /* ==========================================================================
-     2. PAYMENT METHODS & NEPALI QR DISPLAY
+     2. PAYMENT METHODS & NEPALI QR DISPLAY (LIVE FROM SUPABASE DATABASE)
      ========================================================================== */
+  function normalizePaymentMethod(m) {
+    if (!m) return null;
+
+    const rawTitle = (m.title || 'Payment Method').trim();
+    const lowerTitle = rawTitle.toLowerCase();
+
+    // Auto-detect brand emoji, color, and badge based on title if not provided
+    let iconEmoji = m.iconEmoji || m.icon_emoji;
+    let brandColor = m.brandColor || m.brand_color;
+    let badge = m.badge;
+
+    if (!iconEmoji || !brandColor) {
+      if (lowerTitle.includes('esewa')) {
+        iconEmoji = iconEmoji || '🟢';
+        brandColor = brandColor || '#60bb46';
+        badge = badge || 'Instant eSewa';
+      } else if (lowerTitle.includes('khalti')) {
+        iconEmoji = iconEmoji || '🟣';
+        brandColor = brandColor || '#5c2d91';
+        badge = badge || 'Instant Khalti';
+      } else if (lowerTitle.includes('fonepay') || lowerTitle.includes('bank')) {
+        iconEmoji = iconEmoji || '🔴';
+        brandColor = brandColor || '#c8102e';
+        badge = badge || 'Any Nepali Bank';
+      } else {
+        iconEmoji = iconEmoji || '💳';
+        brandColor = brandColor || '#2563eb';
+        badge = badge || 'Official Method';
+      }
+    }
+
+    return {
+      id: m.id,
+      title: rawTitle,
+      accountName: m.account_name || m.accountName || 'The Elite Circle Academy',
+      accountNumber: m.account_number || m.accountNumber || '',
+      qrCodeUrl: (m.qr_code_url || m.qrCodeUrl || '').trim(),
+      instructions: m.instructions || '',
+      active: m.active !== false,
+      orderIndex: m.order_index !== undefined ? m.order_index : (m.orderIndex || 0),
+      iconEmoji,
+      brandColor,
+      badge
+    };
+  }
+
   async function loadPaymentMethods() {
     try {
-      const res = await fetch(`${API_URL}/api/payments/methods`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data && json.data.length > 0) {
-          methodsData = json.data;
-        } else {
-          methodsData = window.DEFAULT_PAYMENT_METHODS || [];
-        }
+      // 1. Primary Source: Fetch live active payment methods & QR codes uploaded via Admin Panel to Supabase DB
+      let liveMethods = [];
+      if (window.SupabaseService && typeof window.SupabaseService.fetchPaymentMethods === 'function') {
+        liveMethods = await window.SupabaseService.fetchPaymentMethods();
+      }
+
+      if (Array.isArray(liveMethods) && liveMethods.length > 0) {
+        methodsData = liveMethods.map(normalizePaymentMethod).filter(Boolean);
+        console.log(`[PaymentMethods] Loaded ${methodsData.length} live method(s) from database:`, methodsData.map(m => m.title));
       } else {
-        methodsData = window.DEFAULT_PAYMENT_METHODS || [];
+        // 2. Fallback to API if available
+        try {
+          const res = await fetch(`${API_URL}/api/payments/methods`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.data && json.data.length > 0) {
+              methodsData = json.data.map(normalizePaymentMethod).filter(Boolean);
+            }
+          }
+        } catch (_) {}
+
+        // 3. Fallback to default configured methods if DB returned nothing
+        if (!methodsData || methodsData.length === 0) {
+          methodsData = (window.DEFAULT_PAYMENT_METHODS || []).map(normalizePaymentMethod).filter(Boolean);
+        }
       }
     } catch (err) {
-      methodsData = window.DEFAULT_PAYMENT_METHODS || [];
+      console.warn('[PaymentMethods] Error loading methods from database, falling back:', err);
+      methodsData = (window.DEFAULT_PAYMENT_METHODS || []).map(normalizePaymentMethod).filter(Boolean);
     }
 
     renderMethods(methodsData);
 
-    // Default to first method (eSewa)
+    // Keep previously selected method if still active, or default to first method
     if (methodsData.length > 0) {
-      selectMethod(methodsData[0]);
+      const match = selectedMethod ? methodsData.find(m => String(m.id) === String(selectedMethod.id)) : null;
+      selectMethod(match || methodsData[0]);
     }
   }
+
+  window.refreshPortalPaymentMethods = loadPaymentMethods;
 
   function renderMethods(methods) {
     if (!methodsContainer) return;
     methodsContainer.innerHTML = '';
 
+    if (!methods || methods.length === 0) {
+      methodsContainer.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: #94a3b8; background: rgba(15, 23, 42, 0.6); border-radius: 14px; border: 1px dashed rgba(255,255,255,0.15);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
+          <strong style="color: #f8fafc; font-size: 1.05rem;">No payment methods currently active</strong>
+          <p style="margin-top: 0.4rem; font-size: 0.9rem;">Payment methods and QR codes are managed by Academy Staff via the Admin Panel. Please check back shortly.</p>
+        </div>
+      `;
+      return;
+    }
+
     methods.forEach((m, idx) => {
+      const isSelected = selectedMethod ? (String(selectedMethod.id) === String(m.id)) : (idx === 0);
       const card = document.createElement('div');
-      card.className = `method-card ${idx === 0 ? 'selected' : ''}`;
+      card.className = `method-card ${isSelected ? 'selected' : ''}`;
       card.dataset.methodId = m.id;
 
       const badgeHtml = m.badge
@@ -252,9 +329,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const qrThumbHtml = m.qrCodeUrl
         ? `<div class="method-qr-container">
-             <img src="${m.qrCodeUrl}" alt="${m.title} QR" class="method-qr-img">
+             <img src="${m.qrCodeUrl}" alt="${escapeHtml(m.title)} QR" class="method-qr-img" loading="lazy">
            </div>`
-        : '';
+        : `<div class="method-no-qr">
+             <span style="font-size: 1.5rem;">💳</span>
+             <span>Direct Account Transfer</span>
+           </div>`;
 
       card.innerHTML = `
         <div class="method-header-row">
@@ -294,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function selectMethod(method) {
     selectedMethod = method;
     document.querySelectorAll('.method-card').forEach((c) => {
-      if (c.dataset.methodId === method.id) {
+      if (String(c.dataset.methodId) === String(method.id)) {
         c.classList.add('selected');
       } else {
         c.classList.remove('selected');
@@ -308,7 +388,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function populateStep2(method) {
     if (!method) return;
 
-    if (step2QrImg) step2QrImg.src = method.qrCodeUrl || '';
+    if (step2QrImg) {
+      if (method.qrCodeUrl) {
+        step2QrImg.src = method.qrCodeUrl;
+        step2QrImg.alt = `${method.title} Official QR Code`;
+        step2QrImg.style.display = 'block';
+        step2QrImg.onerror = () => {
+          step2QrImg.style.display = 'none';
+        };
+      } else {
+        step2QrImg.src = '';
+        step2QrImg.style.display = 'none';
+      }
+    }
+
     if (step2MethodEmoji) step2MethodEmoji.textContent = method.iconEmoji || '💳';
     if (step2MethodTitle) step2MethodTitle.textContent = method.title;
     
@@ -319,12 +412,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (step2CopyNumberBtn) step2CopyNumberBtn.dataset.copy = method.accountNumber || '';
 
     if (step2Instructions) {
-      step2Instructions.innerHTML = `💡 <strong>Important:</strong> Enter your <strong>Discord Username</strong> in the transfer remarks. Save/take a screenshot of the completed payment receipt!`;
+      let customInstructions = '';
+      if (method.instructions && method.instructions.trim()) {
+        customInstructions = `
+          <div style="margin-bottom: 0.6rem; color: #cbd5e1; line-height: 1.5;">
+            ${escapeHtml(method.instructions).replace(/\n/g, '<br>')}
+          </div>
+        `;
+      }
+      step2Instructions.innerHTML = `
+        ${customInstructions}
+        <div style="display: flex; align-items: flex-start; gap: 0.5rem; background: rgba(59, 130, 246, 0.12); border-left: 3px solid #3b82f6; padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.85rem; color: #93c5fd; margin-top: 0.5rem;">
+          <span>💡</span>
+          <span><strong>Important:</strong> Enter your <strong>Discord Username</strong> in the transfer remarks. Save/take a screenshot of the completed payment receipt!</span>
+        </div>
+      `;
     }
 
     // Bind click zone for QR zoom modal
     if (step2QrClickZone) {
-      step2QrClickZone.onclick = () => openQrZoom(method.qrCodeUrl, method.title);
+      if (method.qrCodeUrl) {
+        step2QrClickZone.style.cursor = 'zoom-in';
+        step2QrClickZone.onclick = () => openQrZoom(method.qrCodeUrl, method.title);
+      } else {
+        step2QrClickZone.style.cursor = 'default';
+        step2QrClickZone.onclick = null;
+      }
     }
   }
 
@@ -939,10 +1052,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openQrZoom(qrUrl, title) {
-    if (!qrZoomModal || !zoomImage) return;
+    if (!qrZoomModal || !zoomImage || !qrUrl) return;
     zoomImage.src = qrUrl;
+    zoomImage.alt = `${title} QR Code`;
     if (zoomTitle) zoomTitle.textContent = `${title} • Official High-Res QR Code`;
-    if (downloadQrBtn) downloadQrBtn.href = qrUrl;
+    if (downloadQrBtn) {
+      downloadQrBtn.href = qrUrl;
+      downloadQrBtn.setAttribute('download', `${(title || 'payment').toLowerCase().replace(/[^a-z0-9]/g, '-')}-qr.png`);
+      downloadQrBtn.setAttribute('target', '_blank');
+    }
     qrZoomModal.classList.remove('hidden');
   }
 

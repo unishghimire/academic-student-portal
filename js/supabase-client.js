@@ -210,6 +210,59 @@
     }
 
     /**
+     * Fetch active payment methods & QR codes directly from Supabase database
+     * (managed and updated live via the Admin Panel)
+     * @returns {Promise<Array>}
+     */
+    async fetchPaymentMethods() {
+      // 1. Try via Supabase SDK if initialized
+      if (this.client) {
+        try {
+          const { data, error } = await this.client
+            .from('payment_methods')
+            .select('*')
+            .eq('active', true)
+            .order('order_index', { ascending: true });
+
+          if (!error && Array.isArray(data) && data.length > 0) {
+            return data;
+          }
+          if (error) {
+            console.warn('[SupabaseService] fetchPaymentMethods SDK error:', error.message);
+          }
+        } catch (err) {
+          console.warn('[SupabaseService] fetchPaymentMethods SDK exception:', err);
+        }
+      }
+
+      // 2. Direct REST fallback if SDK client is unavailable or failed
+      const endpointUrl = this.url || window.SUPABASE_CONFIG?.url;
+      const apiKey = this.anonKey || window.SUPABASE_CONFIG?.anonKey;
+
+      if (endpointUrl && apiKey) {
+        try {
+          const restUrl = `${endpointUrl.replace(/\/$/, '')}/rest/v1/payment_methods?active=eq.true&order=order_index.asc`;
+          const res = await fetch(restUrl, {
+            headers: {
+              'apikey': apiKey,
+              'Authorization': `Bearer ${apiKey}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              return data;
+            }
+          }
+        } catch (restErr) {
+          console.warn('[SupabaseService] fetchPaymentMethods REST fallback exception:', restErr);
+        }
+      }
+
+      return [];
+    }
+
+    /**
      * Helper to compute user's subscription and verification state
      * @param {string} discordId
      * @returns {Promise<Object>}
