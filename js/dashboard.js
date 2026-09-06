@@ -15,10 +15,20 @@
     }
 
     init() {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.bindEvents());
-      } else {
+      const onReady = () => {
         this.bindEvents();
+        const user = window.DiscordAuth?.getUser();
+        if (user && user.id) {
+          this.syncWithBackend(user.id);
+        } else {
+          this.render();
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+      } else {
+        onReady();
       }
 
       // Listen to Discord Auth events
@@ -66,6 +76,11 @@
         checkoutView?.classList.add('hidden');
         dashboardView?.classList.remove('hidden');
         this.render();
+
+        const user = window.DiscordAuth?.getUser();
+        if (user && user.id) {
+          this.syncWithBackend(user.id);
+        }
       } else {
         tabDashboardBtn?.classList.remove('active');
         tabCheckoutBtn?.classList.add('active');
@@ -134,48 +149,78 @@
     }
 
     async syncWithBackend(discordId) {
+      if (!discordId) return;
+
       // 1. Fetch user verifications directly from Supabase if configured
-      if (window.SupabaseService?.isConfigured() && discordId) {
+      if (window.SupabaseService?.isConfigured()) {
         try {
-          const supabaseVerifications = await window.SupabaseService.fetchUserVerifications(discordId);
-          if (supabaseVerifications && supabaseVerifications.length > 0) {
-            const formatted = supabaseVerifications.map((item) => ({
+          const state = await window.SupabaseService.getUserSubscriptionState(discordId);
+          if (state && state.records && state.records.length > 0) {
+            const formatted = state.records.map((item) => ({
               transactionId: item.transaction_id || 'TXN-000000',
               planName: item.plan_name || 'Monthly Subscription',
               amount: item.amount || 1000,
               currency: item.currency || 'NPR',
               method: item.payment_method || 'Direct Transfer',
               date: new Date(item.created_at).toLocaleDateString(),
-              status: item.status === 'verified' || item.status === 'approved' ? 'verified' : (item.status === 'rejected' ? 'rejected' : 'pending'),
+              status: ['verified', 'approved', 'accepted'].includes(String(item.status || '').toLowerCase())
+                ? 'verified'
+                : (item.status === 'rejected' ? 'rejected' : 'pending'),
             }));
             localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(formatted));
             this.renderHistory();
 
-            const latest = supabaseVerifications[0];
-            if (latest.status === 'verified' || latest.status === 'approved') {
-              const approvedTime = new Date(latest.created_at).getTime();
-              const expiresAt = approvedTime + 30 * 24 * 60 * 60 * 1000;
-              this.savePlan({
+            // Check if user has an approved/verified subscription
+            if (state.record && ['verified', 'approved', 'accepted'].includes(String(state.record.status || '').toLowerCase())) {
+              const approvedRecord = state.record;
+              const approvedTime = new Date(approvedRecord.reviewed_at || approvedRecord.created_at).getTime();
+              const durationDays = Number(approvedRecord.access_duration_days) || 30;
+              const expiresAt = approvedTime + durationDays * 24 * 60 * 60 * 1000;
+              const isExpired = Date.now() > expiresAt;
+
+              const activePlan = {
                 planId: 'monthly',
-                planName: latest.plan_name || 'Monthly Subscription',
-                priceNpr: Number(latest.amount) || 1000,
+                planName: approvedRecord.plan_name || 'Monthly Subscription',
+                priceNpr: Number(approvedRecord.amount) || 1000,
                 roleName: '@Monthly-Subscriber',
                 roleColor: '#5865F2',
-                status: (Date.now() > expiresAt) ? 'expired' : 'active',
+                status: isExpired ? 'expired' : 'active',
                 startedAt: approvedTime,
                 expiresAt: expiresAt,
-              });
+                recordId: approvedRecord.id,
+                transactionId: approvedRecord.transaction_id,
+              };
+              this.savePlan(activePlan);
+
+              // Synchronize Discord Role on active session immediately
+              if (window.DiscordAuth?.isLoggedIn()) {
+                const activeUser = window.DiscordAuth.getUser();
+                if (activeUser) {
+                  if (!Array.isArray(activeUser.roles)) activeUser.roles = [];
+                  if (!activeUser.roles.includes('@Monthly-Subscriber')) {
+                    activeUser.roles.push('@Monthly-Subscriber');
+                  }
+                  window.DiscordAuth.setSession(activeUser);
+                }
+              }
+
+              // Since approved, clear pending lockdown from storage
+              localStorage.removeItem('ACADEMY_PENDING_SUBMISSION');
+
               this.render();
-            } else if (latest.status === 'pending') {
+            } else if (state.status === 'pending' && state.record) {
+              const pRecord = state.record;
               this.savePlan({
                 planId: 'monthly',
-                planName: latest.plan_name || 'Monthly Subscription',
-                priceNpr: Number(latest.amount) || 1000,
+                planName: pRecord.plan_name || 'Monthly Subscription',
+                priceNpr: Number(pRecord.amount) || 1000,
                 roleName: '@Monthly-Subscriber',
                 roleColor: '#5865F2',
                 status: 'pending',
-                startedAt: new Date(latest.created_at).getTime(),
-                expiresAt: new Date(latest.created_at).getTime() + 30 * 24 * 60 * 60 * 1000,
+                startedAt: new Date(pRecord.created_at).getTime(),
+                expiresAt: new Date(pRecord.created_at).getTime() + 30 * 24 * 60 * 60 * 1000,
+                recordId: pRecord.id,
+                transactionId: pRecord.transaction_id,
               });
               this.render();
             }

@@ -187,17 +187,18 @@
     }
 
     /**
-     * Fetch user payment records from Supabase for a verified Discord ID
+     * Fetch user payment records from Supabase for a verified Discord ID or username
      * @param {string} discordId
      */
     async fetchUserVerifications(discordId) {
       if (!this.isConfigured() || !discordId) return [];
 
       try {
+        const idStr = String(discordId).trim();
         const { data, error } = await this.client
           .from(this.table)
           .select('*')
-          .eq('discord_id', discordId)
+          .or(`discord_id.eq.${idStr},discord_username.eq.${idStr}`)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -206,6 +207,119 @@
         console.error('Could not fetch verifications from Supabase:', err);
         return [];
       }
+    }
+
+    /**
+     * Helper to compute user's subscription and verification state
+     * @param {string} discordId
+     * @returns {Promise<Object>}
+     */
+    async getUserSubscriptionState(discordId) {
+      if (!this.isConfigured() || !discordId) {
+        return { status: 'none', records: [] };
+      }
+
+      const records = await this.fetchUserVerifications(discordId);
+      if (!records || records.length === 0) {
+        return { status: 'none', records: [] };
+      }
+
+      // 1. Check for pending record
+      const pendingRecord = records.find((r) => r.status === 'pending');
+
+      // 2. Check for approved/verified records
+      const approvedRecord = records.find((r) =>
+        ['verified', 'approved', 'accepted'].includes(String(r.status || '').toLowerCase())
+      );
+
+      // 3. If approved record exists, calculate validity and renewal window
+      if (approvedRecord) {
+        const approvedTime = new Date(approvedRecord.reviewed_at || approvedRecord.created_at).getTime();
+        const durationDays = Number(approvedRecord.access_duration_days) || 30;
+        const expiresAt = approvedTime + durationDays * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const diffMs = expiresAt - now;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 3) {
+          // ACTIVE: Membership active with > 3 days remaining. Duplicate payments strictly locked!
+          return {
+            status: 'active',
+            record: approvedRecord,
+            pendingRecord: pendingRecord || null,
+            expiresAt,
+            diffDays,
+            canRenew: false,
+            records,
+          };
+        } else if (diffDays > 0) {
+          // RENEWAL WINDOW: 3 days or fewer remaining
+          if (pendingRecord) {
+            return {
+              status: 'pending',
+              record: pendingRecord,
+              approvedRecord,
+              expiresAt,
+              diffDays,
+              canRenew: false,
+              records,
+            };
+          }
+          return {
+            status: 'renewal_available',
+            record: approvedRecord,
+            expiresAt,
+            diffDays,
+            canRenew: true,
+            records,
+          };
+        } else {
+          // EXPIRED
+          if (pendingRecord) {
+            return {
+              status: 'pending',
+              record: pendingRecord,
+              approvedRecord,
+              expiresAt,
+              diffDays: 0,
+              canRenew: false,
+              records,
+            };
+          }
+          return {
+            status: 'expired',
+            record: approvedRecord,
+            expiresAt,
+            diffDays: 0,
+            canRenew: true,
+            records,
+          };
+        }
+      }
+
+      // 4. Pending only (no approved record)
+      if (pendingRecord) {
+        return {
+          status: 'pending',
+          record: pendingRecord,
+          records,
+        };
+      }
+
+      // 5. Rejected
+      const rejectedRecord = records.find((r) => r.status === 'rejected');
+      if (rejectedRecord) {
+        return {
+          status: 'rejected',
+          record: rejectedRecord,
+          records,
+        };
+      }
+
+      return {
+        status: 'none',
+        records,
+      };
     }
   }
 

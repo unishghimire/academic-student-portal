@@ -23,10 +23,17 @@
       this.loadSession();
 
       // 3. Setup UI listeners once DOM is loaded
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.setupUI());
-      } else {
+      const onReady = () => {
         this.setupUI();
+        if (this.currentUser) {
+          this.dispatchAuthEvent('init', this.currentUser);
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+      } else {
+        onReady();
       }
     }
 

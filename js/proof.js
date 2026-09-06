@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const wizardMainContainer = document.getElementById('wizardMainContainer');
   const pendingLockdownCard = document.getElementById('pendingLockdownCard');
+  const activeMembershipCard = document.getElementById('activeMembershipCard');
+  const activeCardExpiry = document.getElementById('activeCardExpiry');
+  const activeCardDaysLeft = document.getElementById('activeCardDaysLeft');
+  const btnRefreshActiveStatus = document.getElementById('btnRefreshActiveStatus');
   const lockdownTxId = document.getElementById('lockdownTxId');
   const lockdownMethod = document.getElementById('lockdownMethod');
   const lockdownProofWrapper = document.getElementById('lockdownProofWrapper');
@@ -572,6 +576,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const discordUser = window.DiscordAuth?.getUser();
       const discordIdVal = discordIdInput?.value.trim() || discordUser?.id || '';
 
+      // PRE-FLIGHT GUARD: Strictly block duplicate submissions if pending or active (>3 days)
+      if (window.SupabaseService?.isConfigured() && discordIdVal) {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.querySelector('.btn-text').textContent = 'Validating Subscription Status...';
+          submitBtn.querySelector('.spinner')?.classList.remove('hidden');
+        }
+
+        try {
+          const checkState = await window.SupabaseService.getUserSubscriptionState(discordIdVal);
+
+          if (checkState.status === 'pending') {
+            alert(`⚠️ Payment Under Review\n\nYou already have a payment request submitted (Tx: ${checkState.record?.transaction_id || 'PENDING'}).\nMultiple payment submissions are strictly prohibited while a request is pending.`);
+            evaluateUserAccess(discordIdVal);
+            return;
+          }
+
+          if (checkState.status === 'active') {
+            alert(`⚠️ Active Subscription Detected\n\nYou already have an active Monthly Subscription with ${checkState.diffDays} days remaining.\nTo prevent duplicate billing, renewals only unlock when 3 days or fewer remain.`);
+            evaluateUserAccess(discordIdVal);
+            return;
+          }
+        } catch (guardErr) {
+          console.warn('Pre-flight validation warning:', guardErr);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.querySelector('.btn-text').textContent = 'Submit Payment Proof for Verification';
+            submitBtn.querySelector('.spinner')?.classList.add('hidden');
+          }
+        }
+      }
+
       const payload = {
         studentName: studentNameInput?.value.trim() || 'Student',
         phoneNumber: phoneNumberInput?.value.trim() || '',
@@ -658,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // LOCKDOWN VIEW: User cannot submit duplicate payments until approved or rejected
-        enterLockdownMode(pendingData);
+        evaluateUserAccess(discordIdVal);
         showToast('🎉 Payment verification submitted! Under review by staff.');
       } catch (error) {
         if (statusAlert) {
@@ -680,50 +717,124 @@ document.addEventListener('DOMContentLoaded', () => {
      6. LOCKDOWN MODE LOGIC & REAL-TIME SUPABASE STATUS CHECKS
      ========================================================================== */
   function initLockdownCheck() {
-    // Check if user is logged in
     const user = window.DiscordAuth?.getUser();
-    if (!user || !user.id) {
-      // Unauthenticated visitor: NEVER show lockdown
-      exitLockdownMode();
-      return;
+    if (user && user.id) {
+      evaluateUserAccess(user.id);
+    } else {
+      pendingLockdownCard?.classList.add('hidden');
+      activeMembershipCard?.classList.add('hidden');
+      wizardMainContainer?.classList.remove('hidden');
     }
 
-    // Only if logged in with Discord, check their pending submission
-    try {
-      const raw = localStorage.getItem(PENDING_STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (data && data.status === 'pending' && data.discordId === user.id) {
-          enterLockdownMode(data);
-        }
+    // Re-check whenever Discord auth state changes
+    document.addEventListener('academy:discord:change', (e) => {
+      const authUser = e.detail?.user;
+      if (authUser && authUser.id) {
+        evaluateUserAccess(authUser.id);
+      } else {
+        pendingLockdownCard?.classList.add('hidden');
+        activeMembershipCard?.classList.add('hidden');
+        wizardMainContainer?.classList.remove('hidden');
       }
-    } catch (e) {
-      console.warn('Error reading pending storage:', e);
-    }
+    });
 
-    checkPendingLockdown(user.id);
-
-    // Status check button handler
+    // Status check button handler on pending lockdown card
     btnCheckLockdownStatus?.addEventListener('click', async () => {
+      await refreshLockdownStatus();
+    });
+
+    // Status refresh button handler on active membership card
+    btnRefreshActiveStatus?.addEventListener('click', async () => {
       await refreshLockdownStatus();
     });
   }
 
+  async function evaluateUserAccess(discordId) {
+    const activeUser = window.DiscordAuth?.getUser();
+    const targetId = discordId || activeUser?.id;
+
+    if (!targetId || !window.SupabaseService?.isConfigured()) {
+      pendingLockdownCard?.classList.add('hidden');
+      activeMembershipCard?.classList.add('hidden');
+      wizardMainContainer?.classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const state = await window.SupabaseService.getUserSubscriptionState(targetId);
+
+      if (state.status === 'pending') {
+        wizardMainContainer?.classList.add('hidden');
+        activeMembershipCard?.classList.add('hidden');
+        pendingLockdownCard?.classList.remove('hidden');
+
+        const pRec = state.record;
+        if (lockdownTxId) lockdownTxId.textContent = pRec?.transaction_id || 'TXN-PENDING';
+        if (lockdownMethod) lockdownMethod.textContent = pRec?.payment_method || 'Direct Transfer';
+        if (pRec?.proof_url && lockdownProofImg && lockdownProofWrapper) {
+          lockdownProofImg.src = pRec.proof_url;
+          lockdownProofWrapper.classList.remove('hidden');
+        }
+        lockdownRejectionNotice?.classList.add('hidden');
+        return;
+      }
+
+      if (state.status === 'active') {
+        // Active subscription with > 3 days left -> Prevent duplicate payment!
+        wizardMainContainer?.classList.add('hidden');
+        pendingLockdownCard?.classList.add('hidden');
+        activeMembershipCard?.classList.remove('hidden');
+
+        if (activeCardExpiry) {
+          activeCardExpiry.textContent = new Date(state.expiresAt).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        }
+        if (activeCardDaysLeft) {
+          activeCardDaysLeft.textContent = `⚡ ${state.diffDays} Days Remaining`;
+        }
+        return;
+      }
+
+      if (state.status === 'rejected') {
+        wizardMainContainer?.classList.add('hidden');
+        activeMembershipCard?.classList.add('hidden');
+        pendingLockdownCard?.classList.remove('hidden');
+
+        if (lockdownRejectionNotice) {
+          lockdownRejectionNotice.classList.remove('hidden');
+          lockdownRejectionNotice.innerHTML = `
+            <h4>❌ Payment Submission Rejected</h4>
+            <p>Reason: ${escapeHtml(state.record?.notes || 'Receipt unreadable or transaction reference not found.')}</p>
+            <button type="button" class="btn btn-primary btn-sm mt-10" id="btnResubmitAfterReject">
+              Re-submit Valid Payment Proof ➔
+            </button>
+          `;
+          document.getElementById('btnResubmitAfterReject')?.addEventListener('click', () => {
+            pendingLockdownCard?.classList.add('hidden');
+            wizardMainContainer?.classList.remove('hidden');
+          });
+        }
+        return;
+      }
+
+      // Renewal available (diffDays <= 3), expired, or none:
+      pendingLockdownCard?.classList.add('hidden');
+      activeMembershipCard?.classList.add('hidden');
+      wizardMainContainer?.classList.remove('hidden');
+      if (currentWizardStep === 0) goToWizardStep(1);
+    } catch (err) {
+      console.warn('Failed to evaluate user access state:', err);
+    }
+  }
+
   function enterLockdownMode(data) {
-    const user = window.DiscordAuth?.getUser();
-    if (!user || !user.id) {
-      exitLockdownMode();
-      return;
-    }
-
-    if (data && data.discordId && data.discordId !== user.id) {
-      exitLockdownMode();
-      return;
-    }
-
     if (!pendingLockdownCard || !wizardMainContainer) return;
 
     wizardMainContainer.classList.add('hidden');
+    activeMembershipCard?.classList.add('hidden');
     pendingLockdownCard.classList.remove('hidden');
 
     if (lockdownTxId) lockdownTxId.textContent = data.transactionId || 'TXN-PENDING';
@@ -739,110 +850,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function exitLockdownMode() {
     pendingLockdownCard?.classList.add('hidden');
+    activeMembershipCard?.classList.add('hidden');
     wizardMainContainer?.classList.remove('hidden');
     if (currentWizardStep === 0) goToWizardStep(1);
-  }
-
-  async function checkPendingLockdown(discordId) {
-    const activeUser = window.DiscordAuth?.getUser();
-    if (!activeUser || activeUser.id !== discordId) {
-      exitLockdownMode();
-      return;
-    }
-
-    if (!window.SupabaseService?.isConfigured() || !discordId) return;
-
-    try {
-      const records = await window.SupabaseService.fetchUserVerifications(discordId);
-      const currentUser = window.DiscordAuth?.getUser();
-      if (!currentUser || currentUser.id !== discordId) {
-        exitLockdownMode();
-        return;
-      }
-
-      if (records && records.length > 0) {
-        const latest = records[0];
-        if (latest.status === 'pending') {
-          enterLockdownMode({
-            transactionId: latest.transaction_id,
-            paymentMethod: latest.payment_method,
-            proofUrl: latest.proof_url,
-            discordId: latest.discord_id,
-            status: 'pending'
-          });
-        } else {
-          exitLockdownMode();
-        }
-      } else {
-        exitLockdownMode();
-      }
-    } catch (err) {
-      console.warn('Failed to check Supabase pending status:', err);
-    }
   }
 
   async function refreshLockdownStatus() {
     const user = window.DiscordAuth?.getUser();
     if (!user || !user.id) {
-      showToast('Please log in with Discord first to check verification status.');
+      showToast('Please log in with Discord first to check status.');
       exitLockdownMode();
       window.DiscordAuth?.openConnectModal();
       return;
     }
-    const spinner = btnCheckLockdownStatus?.querySelector('.spinner');
-    const btnText = btnCheckLockdownStatus?.querySelector('.btn-text');
+
+    const spinner = btnCheckLockdownStatus?.querySelector('.spinner') || btnRefreshActiveStatus?.querySelector('.spinner');
+    const btnText = btnCheckLockdownStatus?.querySelector('.btn-text') || btnRefreshActiveStatus?.querySelector('.btn-text');
 
     if (btnCheckLockdownStatus) btnCheckLockdownStatus.disabled = true;
+    if (btnRefreshActiveStatus) btnRefreshActiveStatus.disabled = true;
     if (spinner) spinner.classList.remove('hidden');
     if (btnText) btnText.textContent = 'Checking Supabase...';
 
-    let discordId = user.id;
-
-    if (!discordId) {
-      try {
-        const raw = localStorage.getItem(PENDING_STORAGE_KEY);
-        if (raw) discordId = JSON.parse(raw).discordId;
-      } catch (e) {}
-    }
-
     try {
-      if (window.SupabaseService?.isConfigured() && discordId) {
-        const records = await window.SupabaseService.fetchUserVerifications(discordId);
-        if (records && records.length > 0) {
-          const latest = records[0];
-          if (latest.status === 'verified' || latest.status === 'approved') {
-            showToast('🎉 Approved! Your payment has been verified and role is active.');
-            exitLockdownMode();
-            // Switch to Dashboard
-            window.StudentDashboard?.switchTab('dashboard');
-            return;
-          } else if (latest.status === 'rejected') {
-            if (lockdownRejectionNotice) {
-              lockdownRejectionNotice.classList.remove('hidden');
-              lockdownRejectionNotice.innerHTML = `
-                <h4>❌ Payment Submission Rejected</h4>
-                <p>Reason: ${escapeHtml(latest.notes || 'Receipt unreadable or transaction reference not found.')}</p>
-                <button type="button" class="btn btn-primary btn-sm mt-10" id="btnResubmitAfterReject">
-                  Re-submit Valid Payment Proof ➔
-                </button>
-              `;
-              document.getElementById('btnResubmitAfterReject')?.addEventListener('click', () => {
-                exitLockdownMode();
-              });
-            }
-            return;
-          }
+      if (window.SupabaseService?.isConfigured()) {
+        await window.StudentDashboard?.syncWithBackend(user.id);
+        await evaluateUserAccess(user.id);
+
+        const state = await window.SupabaseService.getUserSubscriptionState(user.id);
+        if (state.status === 'active') {
+          showToast('🎉 Subscription is active! Verified with Discord.');
+        } else if (state.status === 'renewal_available') {
+          showToast('⚡ Renewal is now open! 3 or fewer days remaining.');
+        } else if (state.status === 'pending') {
+          showToast('⏳ Payment is still under review by staff.');
+        } else {
+          showToast('✓ Status synchronized with Supabase.');
         }
       }
-
-      // Still pending
-      showToast('⏳ Status: Still under review by staff (Usually within 15 mins).');
     } catch (err) {
       showToast('⚠️ Could not connect to verification server. Please try again.');
     } finally {
       if (btnCheckLockdownStatus) btnCheckLockdownStatus.disabled = false;
+      if (btnRefreshActiveStatus) btnRefreshActiveStatus.disabled = false;
       if (spinner) spinner.classList.add('hidden');
-      if (btnText) btnText.textContent = '🔄 Check Verification Status';
+      if (btnCheckLockdownStatus?.querySelector('.btn-text')) {
+        btnCheckLockdownStatus.querySelector('.btn-text').textContent = '🔄 Check Verification Status';
+      }
+      if (btnRefreshActiveStatus?.querySelector('.btn-text')) {
+        btnRefreshActiveStatus.querySelector('.btn-text').textContent = '🔄 Refresh Status';
+      }
     }
   }
 

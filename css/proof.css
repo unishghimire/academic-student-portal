@@ -2760,6 +2760,164 @@ textarea:focus {
 }
 
 /* =============================================================================
+   ACTIVE MEMBERSHIP CARD (CHECKOUT PREVENT / ACTIVE VIEW)
+   ============================================================================= */
+.active-membership-card {
+  text-align: center;
+  padding: 48px 36px;
+  background: linear-gradient(135deg, rgba(13, 27, 20, 0.95) 0%, rgba(18, 24, 36, 0.95) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.45);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.15);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.active-membership-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+}
+
+.active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  padding: 6px 16px;
+  border-radius: 30px;
+  margin-bottom: 20px;
+}
+
+.pulse-dot-green {
+  width: 9px;
+  height: 9px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulseDotGreen 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseDotGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+.active-icon-circle {
+  font-size: 3.2rem;
+  margin-bottom: 16px;
+}
+
+.active-membership-card h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.active-desc {
+  color: #cbd5e1;
+  font-size: 1.02rem;
+  max-width: 620px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.active-desc strong {
+  color: #34d399;
+}
+
+.active-info-box {
+  max-width: 640px;
+  margin: 0 auto 24px;
+  background: rgba(10, 13, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: left;
+}
+
+.active-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.active-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.active-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.active-val {
+  font-size: 0.95rem;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.text-emerald {
+  color: #34d399 !important;
+  font-weight: 700;
+}
+
+.role-chip-active {
+  display: inline-block;
+  background: rgba(88, 101, 242, 0.15);
+  border: 1px solid #5865F2;
+  color: #818cf8;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.active-lock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+  max-width: 640px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.active-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* =============================================================================
    RESPONSIVE OPTIMIZATIONS: TABLETS (768px - 1024px)
    ============================================================================= */
 @media (min-width: 769px) and (max-width: 1024px) {
