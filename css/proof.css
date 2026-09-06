@@ -2744,6 +2744,21 @@ textarea:focus {
   margin: 0 auto;
 }
 
+.renewal-lock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 /* =============================================================================
    RESPONSIVE OPTIMIZATIONS: TABLETS (768px - 1024px)
    ============================================================================= */

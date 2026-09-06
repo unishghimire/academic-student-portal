@@ -249,6 +249,18 @@
     }
 
     triggerRenewal() {
+      const plan = this.getStoredPlan();
+      if (plan && plan.status === 'active') {
+        const now = Date.now();
+        const diffDays = Math.ceil((plan.expiresAt - now) / (1000 * 60 * 60 * 24));
+        if (diffDays > 3) {
+          if (window.showToast) {
+            window.showToast(`🔒 Early renewal is locked. It unlocks when 3 days or fewer remain (${diffDays} days left).`);
+          }
+          return;
+        }
+      }
+
       // Switch to checkout tab
       this.switchTab('checkout');
 
@@ -301,6 +313,8 @@
       const planExpiry = document.getElementById('dashPlanExpiry');
       const planCountdown = document.getElementById('dashPlanCountdown');
       const dashRolePill = document.getElementById('dashRolePill');
+      const renewBtn = document.getElementById('btnRenewPlan');
+      const renewalLockNotice = document.getElementById('renewalLockNotice');
 
       if (plan) {
         if (planTitle) planTitle.textContent = plan.planName;
@@ -336,6 +350,9 @@
           } else if (diffDays <= 0) {
             planCountdown.textContent = '⚠️ Plan expired. Renew below to restore Discord role.';
             planCountdown.className = 'countdown-timer expired';
+          } else if (diffDays <= 3) {
+            planCountdown.textContent = `⚡ Only ${diffDays} day${diffDays === 1 ? '' : 's'} remaining! Renewal is now available.`;
+            planCountdown.className = 'countdown-timer pending';
           } else {
             planCountdown.textContent = `⚡ ${diffDays} day${diffDays === 1 ? '' : 's'} remaining until renewal`;
             planCountdown.className = 'countdown-timer active';
@@ -347,6 +364,29 @@
           dashRolePill.style.backgroundColor = `${plan.roleColor || '#5865F2'}22`;
           dashRolePill.style.borderColor = plan.roleColor || '#5865F2';
           dashRolePill.style.color = plan.roleColor || '#5865F2';
+        }
+
+        // RENEWAL VISIBILITY CHECK:
+        // Renewal will NOT appear until user expiry date goes to less than 3 days
+        if (plan.status === 'pending') {
+          renewBtn?.classList.add('hidden');
+          renewalLockNotice?.classList.add('hidden');
+        } else if (diffDays <= 3) {
+          // 3 days or fewer remaining (or expired) -> SHOW renew button!
+          renewBtn?.classList.remove('hidden');
+          if (renewBtn) {
+            renewBtn.innerHTML = diffDays <= 0
+              ? '<span>⚡ Renew Expired Subscription (रु 1,000)</span>'
+              : '<span>⚡ Renew Subscription Now (रु 1,000)</span>';
+          }
+          renewalLockNotice?.classList.add('hidden');
+        } else {
+          // More than 3 days left -> HIDE renew button!
+          renewBtn?.classList.add('hidden');
+          if (renewalLockNotice) {
+            renewalLockNotice.textContent = `🔒 Early renewal is locked. Renewal unlocks when 3 days or fewer remain (${diffDays} days left).`;
+            renewalLockNotice.classList.remove('hidden');
+          }
         }
       } else {
         if (planTitle) planTitle.textContent = 'No Active Subscription';
@@ -366,6 +406,13 @@
           dashRolePill.style.borderColor = 'rgba(255, 255, 255, 0.15)';
           dashRolePill.style.color = '#94a3b8';
         }
+
+        // Unsubscribed users can enroll
+        renewBtn?.classList.remove('hidden');
+        if (renewBtn) {
+          renewBtn.innerHTML = '<span>⚡ Enroll in Monthly Subscription (रु 1,000)</span>';
+        }
+        renewalLockNotice?.classList.add('hidden');
       }
 
       // Render Payment History
