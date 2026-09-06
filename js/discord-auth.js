@@ -249,11 +249,15 @@
       devQuickConnectBtn?.addEventListener('click', () => {
         const customId = document.getElementById('quickDiscordIdInput')?.value?.trim();
         const customUsername = document.getElementById('quickDiscordNameInput')?.value?.trim();
+        if (!customUsername) {
+          alert('Please enter your Discord Username.');
+          return;
+        }
         this.quickConnect({
-          id: customId || '184920491029384729',
-          username: customUsername || 'alex_videoads',
-          displayName: customUsername ? customUsername.toUpperCase() : 'Alex Morgan',
-          isDemo: true,
+          id: customId || `id_${Date.now().toString().slice(-8)}`,
+          username: customUsername,
+          displayName: customUsername,
+          isDemo: false,
         });
       });
 

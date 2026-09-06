@@ -88,25 +88,6 @@
       } catch (e) {
         console.error('Error reading plan storage:', e);
       }
-
-      // Default initial mock/demo plan if user is logged in
-      const user = window.DiscordAuth?.getUser();
-      if (user) {
-        const defaultPlan = {
-          planId: 'monthly',
-          planName: 'Monthly All-Access Subscription',
-          priceNpr: 1000,
-          roleName: '@Monthly-Subscriber',
-          roleColor: '#5865F2',
-          status: 'active',
-          startedAt: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-          expiresAt: Date.now() + 25 * 24 * 60 * 60 * 1000, // 25 days remaining
-          autoRenew: false,
-        };
-        this.savePlan(defaultPlan);
-        return defaultPlan;
-      }
-
       return null;
     }
 
@@ -121,24 +102,14 @@
       } catch (e) {
         console.error('Error reading history storage:', e);
       }
-      return [
-        {
-          transactionId: 'TXN-984210492',
-          planName: 'Monthly All-Access Subscription',
-          amount: 1000,
-          currency: 'NPR',
-          method: 'eSewa Mobile Wallet',
-          date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          status: 'verified', // 'verified' | 'pending' | 'rejected'
-        }
-      ];
+      return [];
     }
 
     addSubmissionToHistory(submission) {
       const history = this.getPaymentHistory();
       history.unshift({
         transactionId: submission.transactionId || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
-        planName: submission.planName || 'Monthly All-Access Subscription',
+        planName: submission.planName || 'Monthly Subscription',
         amount: submission.amount || 1000,
         currency: 'NPR',
         method: submission.paymentMethod || 'Direct Transfer',
@@ -170,7 +141,7 @@
           if (supabaseVerifications && supabaseVerifications.length > 0) {
             const formatted = supabaseVerifications.map((item) => ({
               transactionId: item.transaction_id || 'TXN-000000',
-              planName: item.plan_name || 'Monthly All-Access Subscription',
+              planName: item.plan_name || 'Monthly Subscription',
               amount: item.amount || 1000,
               currency: item.currency || 'NPR',
               method: item.payment_method || 'Direct Transfer',
@@ -179,6 +150,35 @@
             }));
             localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(formatted));
             this.renderHistory();
+
+            const latest = supabaseVerifications[0];
+            if (latest.status === 'verified' || latest.status === 'approved') {
+              const approvedTime = new Date(latest.created_at).getTime();
+              const expiresAt = approvedTime + 30 * 24 * 60 * 60 * 1000;
+              this.savePlan({
+                planId: 'monthly',
+                planName: latest.plan_name || 'Monthly Subscription',
+                priceNpr: Number(latest.amount) || 1000,
+                roleName: '@Monthly-Subscriber',
+                roleColor: '#5865F2',
+                status: (Date.now() > expiresAt) ? 'expired' : 'active',
+                startedAt: approvedTime,
+                expiresAt: expiresAt,
+              });
+              this.render();
+            } else if (latest.status === 'pending') {
+              this.savePlan({
+                planId: 'monthly',
+                planName: latest.plan_name || 'Monthly Subscription',
+                priceNpr: Number(latest.amount) || 1000,
+                roleName: '@Monthly-Subscriber',
+                roleColor: '#5865F2',
+                status: 'pending',
+                startedAt: new Date(latest.created_at).getTime(),
+                expiresAt: new Date(latest.created_at).getTime() + 30 * 24 * 60 * 60 * 1000,
+              });
+              this.render();
+            }
           }
         } catch (supaErr) {
           console.warn('Could not sync history from Supabase:', supaErr);
@@ -349,13 +349,23 @@
           dashRolePill.style.color = plan.roleColor || '#5865F2';
         }
       } else {
-        if (planTitle) planTitle.textContent = 'No Active Plan';
-        if (planPrice) planPrice.textContent = 'Enroll below for रु 1,000';
+        if (planTitle) planTitle.textContent = 'No Active Subscription';
+        if (planPrice) planPrice.textContent = 'रु 1,000 / 30 Days';
         if (planBadge) {
-          planBadge.textContent = 'GUEST ACCESS';
-          planBadge.className = 'status-badge guest';
+          planBadge.textContent = 'NOT SUBSCRIBED';
+          planBadge.className = 'status-badge expired';
         }
-        if (planCountdown) planCountdown.textContent = 'Choose a plan to get your Discord role activated.';
+        if (planExpiry) planExpiry.textContent = 'Not Subscribed';
+        if (planCountdown) {
+          planCountdown.textContent = '⚠️ You do not have an active membership. Enroll below to activate your Discord role.';
+          planCountdown.className = 'countdown-timer expired';
+        }
+        if (dashRolePill) {
+          dashRolePill.textContent = 'No Role Assigned';
+          dashRolePill.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          dashRolePill.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+          dashRolePill.style.color = '#94a3b8';
+        }
       }
 
       // Render Payment History

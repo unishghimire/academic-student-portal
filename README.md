@@ -14,10 +14,9 @@ The public-facing **Student Payment & Discord Verification Portal** for **The El
   - Real-time Discord role synchronization button
   - 1-Click "Renew Subscription" workflow
   - Payment proof submission & receipt history tracking
-- **NPR 1,000 Subscription Tiers**:
-  - **Monthly All-Access Subscription**: रु 1,000 / 30 days (Discord `@Monthly-Subscriber` role)
-  - **3-Tier All-Access Pass**: रु 1,000 (Complete Tier 1 + Tier 2 + Tier 3 bundle with Discord `@Tier-3 Master` VIP role)
-  - **Custom Amount**: For custom student invoices or institutional packages
+- **Official Single Membership Plan**:
+  - **Monthly Subscription**: रु 1,000 / 30 days (Discord `@Monthly-Subscriber` role)
+  - Grants complete access to all Academy courses, weekly live Q&A, Discord voice lounges, and automated renewal.
 - **Nepali Digital Wallets & Mobile Banking**:
   - **eSewa Mobile Wallet** (Instant transfer + QR zoom)
   - **Khalti Digital Wallet** (Instant transfer + QR zoom)

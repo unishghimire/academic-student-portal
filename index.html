@@ -62,8 +62,8 @@
           <div class="user-profile-meta">
             <img id="navUserAvatar" class="nav-avatar" src="" alt="Discord Avatar">
             <div class="nav-user-text">
-              <span id="navUserName" class="nav-user-name">alex#0001</span>
-              <span id="navUserId" class="nav-user-id">ID: 1849204...</span>
+              <span id="navUserName" class="nav-user-name">Discord User</span>
+              <span id="navUserId" class="nav-user-id">ID: ...</span>
             </div>
             <span class="verified-tag-mini" title="Cryptographically Verified Discord Identity">✓</span>
           </div>
@@ -348,7 +348,7 @@
                 <label for="discordId">Discord User ID / Username <span class="required">*</span></label>
                 <span id="discordVerifiedBadge" class="verified-status-tag hidden">✓ Verified via OAuth</span>
               </div>
-              <input type="text" id="discordId" name="discordId" placeholder="e.g. alex_videoads or 1849204910293847" required>
+              <input type="text" id="discordId" name="discordId" placeholder="e.g. your_discord_username or 1849204910293847" required>
               <span class="field-hint" id="discordIdHint">Connect Discord above to lock your ID automatically</span>
             </div>
 
@@ -600,39 +600,38 @@
           </button>
         </div>
 
-        <!-- OAuth Redirect URI Helper for Developer Portal -->
-        <div class="redirect-uri-helper">
+        <div class="divider-text"><span>OR LINK DISCORD USERNAME DIRECTLY</span></div>
+
+        <!-- Direct Account Link -->
+        <div class="dev-quick-connect-card">
+          <h4>Direct Account Link</h4>
+          <p class="field-hint">If you prefer not to use OAuth popup, enter your Discord username to link your verification:</p>
+          <div class="form-row-grid mt-10">
+            <div class="form-group">
+              <label for="quickDiscordNameInput">Discord Username <span class="required">*</span></label>
+              <input type="text" id="quickDiscordNameInput" placeholder="e.g. your_discord_username" required>
+            </div>
+            <div class="form-group">
+              <label for="quickDiscordIdInput">Discord Snowflake ID <span class="optional">(Optional)</span></label>
+              <input type="text" id="quickDiscordIdInput" placeholder="e.g. 184920491029384729">
+            </div>
+          </div>
+          <button type="button" id="devQuickConnectBtn" class="btn btn-secondary full-width mt-10">
+            ✓ Link Discord Account
+          </button>
+        </div>
+
+        <!-- OAuth Redirect URI Display (For Admin Reference) -->
+        <div class="redirect-uri-helper hidden" id="oauthRedirectHelperBox">
           <div class="redirect-label-row">
             <span class="redirect-label">OAuth2 Redirect URI:</span>
             <button type="button" class="btn-copy-mini" id="copyRedirectUriBtn">Copy URI</button>
           </div>
           <code id="oauthRedirectUriDisplay">https://...</code>
-          <span class="redirect-hint">Ensure this exact URL is added to your application's Redirects at <a href="https://discord.com/developers/applications/1545687507725979768/oauth2" target="_blank" rel="noopener">discord.com/developers</a>.</span>
         </div>
 
-        <div class="divider-text"><span>OR QUICK VERIFICATION FOR LOCAL / TEST MODE</span></div>
-
-        <!-- Quick Connect / Dev Mode -->
-        <div class="dev-quick-connect-card">
-          <h4>⚡ Instant Verified Connect (Test Mode)</h4>
-          <p class="field-hint">Test the verified payment submission pipeline immediately with your Discord username and Snowflake ID:</p>
-          <div class="form-row-grid mt-10">
-            <div class="form-group">
-              <label for="quickDiscordNameInput">Discord Username</label>
-              <input type="text" id="quickDiscordNameInput" placeholder="e.g. alex_videoads" value="alex_videoads">
-            </div>
-            <div class="form-group">
-              <label for="quickDiscordIdInput">Discord User ID (Snowflake)</label>
-              <input type="text" id="quickDiscordIdInput" placeholder="e.g. 184920491029384729" value="184920491029384729">
-            </div>
-          </div>
-          <button type="button" id="devQuickConnectBtn" class="btn btn-secondary full-width mt-10">
-            ✓ Verify Account & Connect
-          </button>
-        </div>
-
-        <!-- Discord Application Setup Details (Collapsible) -->
-        <details class="config-accordion mt-15" id="discordConfigNotice">
+        <!-- Discord Application Setup Details (Collapsible, Admin only) -->
+        <details class="config-accordion mt-15 hidden" id="discordConfigNotice">
           <summary>⚙️ Change Discord & Supabase Credentials</summary>
           <div class="config-accordion-body">
             <p class="small-text"><strong>Discord Settings:</strong></p>
