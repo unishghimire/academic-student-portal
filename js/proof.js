@@ -381,6 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (discordBannerDesc) discordBannerDesc.textContent = 'Connect your Discord account to auto-fill your profile and lock in your verified Discord Snowflake ID.';
         if (btnConnectInForm) btnConnectInForm.textContent = 'Connect Account';
       }
+
+      // Guest / Logged out state: ALWAYS exit lockdown mode
+      exitLockdownMode();
     }
   }
 
@@ -677,18 +680,28 @@ document.addEventListener('DOMContentLoaded', () => {
      6. LOCKDOWN MODE LOGIC & REAL-TIME SUPABASE STATUS CHECKS
      ========================================================================== */
   function initLockdownCheck() {
-    // Check if there is an active pending submission in localStorage
+    // Check if user is logged in
+    const user = window.DiscordAuth?.getUser();
+    if (!user || !user.id) {
+      // Unauthenticated visitor: NEVER show lockdown
+      exitLockdownMode();
+      return;
+    }
+
+    // Only if logged in with Discord, check their pending submission
     try {
       const raw = localStorage.getItem(PENDING_STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw);
-        if (data && data.status === 'pending') {
+        if (data && data.status === 'pending' && data.discordId === user.id) {
           enterLockdownMode(data);
         }
       }
     } catch (e) {
       console.warn('Error reading pending storage:', e);
     }
+
+    checkPendingLockdown(user.id);
 
     // Status check button handler
     btnCheckLockdownStatus?.addEventListener('click', async () => {
@@ -697,6 +710,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function enterLockdownMode(data) {
+    const user = window.DiscordAuth?.getUser();
+    if (!user || !user.id) {
+      exitLockdownMode();
+      return;
+    }
+
+    if (data && data.discordId && data.discordId !== user.id) {
+      exitLockdownMode();
+      return;
+    }
+
     if (!pendingLockdownCard || !wizardMainContainer) return;
 
     wizardMainContainer.classList.add('hidden');
@@ -714,17 +738,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function exitLockdownMode() {
-    localStorage.removeItem(PENDING_STORAGE_KEY);
     pendingLockdownCard?.classList.add('hidden');
     wizardMainContainer?.classList.remove('hidden');
-    goToWizardStep(1);
+    if (currentWizardStep === 0) goToWizardStep(1);
   }
 
   async function checkPendingLockdown(discordId) {
+    const activeUser = window.DiscordAuth?.getUser();
+    if (!activeUser || activeUser.id !== discordId) {
+      exitLockdownMode();
+      return;
+    }
+
     if (!window.SupabaseService?.isConfigured() || !discordId) return;
 
     try {
       const records = await window.SupabaseService.fetchUserVerifications(discordId);
+      const currentUser = window.DiscordAuth?.getUser();
+      if (!currentUser || currentUser.id !== discordId) {
+        exitLockdownMode();
+        return;
+      }
+
       if (records && records.length > 0) {
         const latest = records[0];
         if (latest.status === 'pending') {
@@ -735,11 +770,11 @@ document.addEventListener('DOMContentLoaded', () => {
             discordId: latest.discord_id,
             status: 'pending'
           });
-        } else if (latest.status === 'verified' || latest.status === 'approved') {
-          localStorage.removeItem(PENDING_STORAGE_KEY);
-          pendingLockdownCard?.classList.add('hidden');
-          wizardMainContainer?.classList.remove('hidden');
+        } else {
+          exitLockdownMode();
         }
+      } else {
+        exitLockdownMode();
       }
     } catch (err) {
       console.warn('Failed to check Supabase pending status:', err);
@@ -747,6 +782,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function refreshLockdownStatus() {
+    const user = window.DiscordAuth?.getUser();
+    if (!user || !user.id) {
+      showToast('Please log in with Discord first to check verification status.');
+      exitLockdownMode();
+      window.DiscordAuth?.openConnectModal();
+      return;
+    }
     const spinner = btnCheckLockdownStatus?.querySelector('.spinner');
     const btnText = btnCheckLockdownStatus?.querySelector('.btn-text');
 
@@ -754,8 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (spinner) spinner.classList.remove('hidden');
     if (btnText) btnText.textContent = 'Checking Supabase...';
 
-    const user = window.DiscordAuth?.getUser();
-    let discordId = user?.id;
+    let discordId = user.id;
 
     if (!discordId) {
       try {

@@ -192,6 +192,7 @@
     logout() {
       this.currentUser = null;
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('ACADEMY_PENDING_SUBMISSION');
       this.renderUserUI();
       this.dispatchAuthEvent('logout', null);
     }
