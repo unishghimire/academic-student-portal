@@ -2744,29 +2744,482 @@ textarea:focus {
   margin: 0 auto;
 }
 
+/* =============================================================================
+   RESPONSIVE OPTIMIZATIONS: TABLETS (768px - 1024px)
+   ============================================================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+  body {
+    padding: 28px 20px 60px;
+  }
+
+  .page-container {
+    max-width: 100%;
+  }
+
+  .portal-navbar {
+    padding: 14px 20px;
+  }
+
+  .single-plan-card {
+    grid-template-columns: 1.1fr 1fr;
+    gap: 22px;
+    padding: 26px;
+  }
+
+  .plan-main-title {
+    font-size: 1.7rem;
+  }
+
+  .plan-price-large .amount {
+    font-size: 2.6rem;
+  }
+
+  .stepper-nav {
+    padding: 14px 20px;
+  }
+
+  .step-item {
+    gap: 8px;
+  }
+
+  .step-label {
+    font-size: 0.82rem;
+  }
+
+  .step-desc {
+    font-size: 0.72rem;
+  }
+
+  .methods-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .active-qr-showcase {
+    grid-template-columns: 210px 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .method-qr-img-large {
+    width: 165px;
+    height: 165px;
+  }
+
+  .lockdown-card {
+    padding: 36px 24px;
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE OPTIMIZATIONS: MOBILE (max-width: 768px)
+   ============================================================================= */
 @media (max-width: 768px) {
+  body {
+    padding: 16px 12px 60px;
+  }
+
+  .page-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Header & Branding */
+  .header {
+    margin-bottom: 22px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .brand-pill {
+    font-size: 0.72rem;
+    padding: 5px 12px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Portal Navbar */
+  .portal-navbar {
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .nav-brand {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .nav-tabs .tab-btn {
+    padding: 10px 12px;
+    font-size: 0.84rem;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .nav-auth-area {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-discord-connect {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .user-pill-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Single Plan Showcase Card */
   .single-plan-card {
     grid-template-columns: 1fr;
     gap: 20px;
-    padding: 24px;
+    padding: 22px 18px;
+    border-radius: var(--radius-md);
   }
+
+  .plan-main-title {
+    font-size: 1.6rem;
+  }
+
+  .plan-price-large .amount {
+    font-size: 2.5rem;
+  }
+
+  .tier-role-grant {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.86rem;
+  }
+
+  .plan-showcase-right {
+    padding: 16px;
+  }
+
+  .plan-perks-list li {
+    font-size: 0.86rem;
+  }
+
+  /* Stepper Navigation */
+  .stepper-nav {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    gap: 4px;
+    border-radius: var(--radius-md);
+  }
+
+  .step-item {
+    gap: 6px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    min-width: 28px;
+  }
+
+  .step-label {
+    font-size: 0.72rem;
+  }
+
+  .step-desc {
+    display: none !important;
+  }
+
+  .step-divider {
+    min-width: 8px;
+    margin: 0 4px;
+  }
+
+  /* Wizard Step 1: Methods */
+  .methods-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .method-card {
+    padding: 16px;
+  }
+
+  /* Wizard Step 2: QR Showcase */
   .active-qr-showcase {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: 18px;
+    padding: 18px 14px;
+    border-radius: var(--radius-md);
   }
+
   .qr-showcase-left {
     margin: 0 auto;
   }
+
+  .method-qr-img-large {
+    width: 180px;
+    height: 180px;
+  }
+
   .method-brand-pill {
     margin: 0 auto;
+    font-size: 1rem;
   }
+
+  .account-copy-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .account-val {
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+
+  .btn-copy {
+    min-height: 40px;
+    padding: 6px 14px;
+  }
+
+  /* Wizard Step 3: Form Fields */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+
+  /* Ensure 16px font-size on all mobile inputs to prevent iOS auto-zoom */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    min-height: 46px;
+  }
+
+  .discord-verification-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .discord-verification-banner .banner-icon {
+    margin: 0 auto;
+  }
+
+  .discord-verification-banner .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  /* Wizard Step 4: Upload & Summary */
+  .selection-summary-banner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .file-drop-zone {
+    padding: 24px 14px;
+  }
+
+  .url-fallback-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .or-badge {
+    align-self: center;
+  }
+
+  /* Wizard Actions (Back & Next Buttons) */
+  .wizard-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  .wizard-actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  /* Lockdown Card */
+  .lockdown-card {
+    padding: 28px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .lockdown-card h2 {
+    font-size: 1.6rem;
+  }
+
+  .lockdown-desc {
+    font-size: 0.92rem;
+  }
+
   .lockdown-info-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
+
   .lockdown-actions {
     flex-direction: column;
+    gap: 10px;
   }
+
   .lockdown-actions .btn {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  /* Student Dashboard on Mobile */
+  .dash-user-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .dash-user-info {
+    align-items: center;
+  }
+
+  .dash-action-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dash-action-bar .btn {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .history-card {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .history-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 8px;
+  }
+
+  /* Modals on Mobile */
+  .modal-card {
+    width: calc(100% - 24px);
+    margin: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    padding: 14px 18px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .form-row-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE OPTIMIZATIONS: SMALL PHONES (max-width: 420px)
+   ============================================================================= */
+@media (max-width: 420px) {
+  body {
+    padding: 12px 8px 48px;
+  }
+
+  h1 {
+    font-size: 1.45rem;
+  }
+
+  .stepper-nav {
+    padding: 10px 8px;
+  }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.72rem;
+  }
+
+  .step-label {
+    font-size: 0.65rem;
+    letter-spacing: -0.2px;
+  }
+
+  .step-divider {
+    min-width: 4px;
+    margin: 0 2px;
+  }
+
+  .plan-price-large .amount {
+    font-size: 2.1rem;
+  }
+
+  .plan-price-large .currency {
+    font-size: 1.2rem;
+  }
+
+  .plan-price-large .period {
+    font-size: 0.85rem;
+  }
+
+  .selection-summary-banner {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .method-qr-img-large {
+    width: 150px;
+    height: 150px;
+  }
+
+  .account-copy-row {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .account-copy-row .btn-copy {
     width: 100%;
   }
 }
