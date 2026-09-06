@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           if (checkState.status === 'active') {
-            alert(`⚠️ Active Subscription Detected\n\nYou already have an active Monthly Subscription with ${checkState.diffDays} days remaining.\nTo prevent duplicate billing, renewals only unlock when 3 days or fewer remain.`);
+            alert(`⚠️ Active Subscription Detected\n\nYou currently have an active Monthly Subscription with ${checkState.diffDays} days remaining.\n\nPayment methods and payment QR will only pop up if you have no membership or if your membership has expired.`);
             evaluateUserAccess(discordIdVal);
             return;
           }
@@ -718,6 +718,24 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================================== */
   function initLockdownCheck() {
     const user = window.DiscordAuth?.getUser();
+
+    // Fast synchronous pre-check from stored plan to prevent any flash of payment methods/QR
+    try {
+      const storedPlan = window.StudentDashboard?.getStoredPlan();
+      const storedPending = localStorage.getItem(PENDING_STORAGE_KEY);
+      if (user && user.id) {
+        if (storedPending && JSON.parse(storedPending).status === 'pending') {
+          wizardMainContainer?.classList.add('hidden');
+          activeMembershipCard?.classList.add('hidden');
+          pendingLockdownCard?.classList.remove('hidden');
+        } else if (storedPlan && storedPlan.status === 'active' && storedPlan.expiresAt > Date.now()) {
+          wizardMainContainer?.classList.add('hidden');
+          pendingLockdownCard?.classList.add('hidden');
+          activeMembershipCard?.classList.remove('hidden');
+        }
+      }
+    } catch (e) {}
+
     if (user && user.id) {
       evaluateUserAccess(user.id);
     } else {
@@ -880,8 +898,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const state = await window.SupabaseService.getUserSubscriptionState(user.id);
         if (state.status === 'active') {
           showToast('🎉 Subscription is active! Verified with Discord.');
-        } else if (state.status === 'renewal_available') {
-          showToast('⚡ Renewal is now open! 3 or fewer days remaining.');
+        } else if (state.status === 'expired') {
+          showToast('⚠️ Subscription expired. Payment methods and QR are now unlocked to renew.');
         } else if (state.status === 'pending') {
           showToast('⏳ Payment is still under review by staff.');
         } else {

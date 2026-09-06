@@ -298,9 +298,9 @@
       if (plan && plan.status === 'active') {
         const now = Date.now();
         const diffDays = Math.ceil((plan.expiresAt - now) / (1000 * 60 * 60 * 24));
-        if (diffDays > 3) {
+        if (diffDays > 0) {
           if (window.showToast) {
-            window.showToast(`🔒 Early renewal is locked. It unlocks when 3 days or fewer remain (${diffDays} days left).`);
+            window.showToast(`🔒 Membership Active: Early renewal is locked. Payment methods and QR unlock once your membership expires (${diffDays} days left).`);
           }
           return;
         }
@@ -395,11 +395,8 @@
           } else if (diffDays <= 0) {
             planCountdown.textContent = '⚠️ Plan expired. Renew below to restore Discord role.';
             planCountdown.className = 'countdown-timer expired';
-          } else if (diffDays <= 3) {
-            planCountdown.textContent = `⚡ Only ${diffDays} day${diffDays === 1 ? '' : 's'} remaining! Renewal is now available.`;
-            planCountdown.className = 'countdown-timer pending';
           } else {
-            planCountdown.textContent = `⚡ ${diffDays} day${diffDays === 1 ? '' : 's'} remaining until renewal`;
+            planCountdown.textContent = `⚡ ${diffDays} day${diffDays === 1 ? '' : 's'} remaining on active membership`;
             planCountdown.className = 'countdown-timer active';
           }
         }
@@ -411,25 +408,23 @@
           dashRolePill.style.color = plan.roleColor || '#5865F2';
         }
 
-        // RENEWAL VISIBILITY CHECK:
-        // Renewal will NOT appear until user expiry date goes to less than 3 days
+        // RENEWAL & PAYMENT METHOD VISIBILITY CHECK:
+        // Payment method and payment QR will ONLY pop up if user had no membership or if membership expired
         if (plan.status === 'pending') {
           renewBtn?.classList.add('hidden');
           renewalLockNotice?.classList.add('hidden');
-        } else if (diffDays <= 3) {
-          // 3 days or fewer remaining (or expired) -> SHOW renew button!
+        } else if (diffDays <= 0) {
+          // EXPIRED -> SHOW renew button!
           renewBtn?.classList.remove('hidden');
           if (renewBtn) {
-            renewBtn.innerHTML = diffDays <= 0
-              ? '<span>⚡ Renew Expired Subscription (रु 1,000)</span>'
-              : '<span>⚡ Renew Subscription Now (रु 1,000)</span>';
+            renewBtn.innerHTML = '<span>⚡ Renew Expired Subscription (रु 1,000)</span>';
           }
           renewalLockNotice?.classList.add('hidden');
         } else {
-          // More than 3 days left -> HIDE renew button!
+          // ACTIVE (diffDays > 0) -> HIDE renew button! Payment methods & QR will NOT pop up
           renewBtn?.classList.add('hidden');
           if (renewalLockNotice) {
-            renewalLockNotice.textContent = `🔒 Early renewal is locked. Renewal unlocks when 3 days or fewer remain (${diffDays} days left).`;
+            renewalLockNotice.textContent = `🔒 Active Membership: Payment methods and QR checkout are locked. Renewal unlocks when your membership expires (${diffDays} days remaining).`;
             renewalLockNotice.classList.remove('hidden');
           }
         }

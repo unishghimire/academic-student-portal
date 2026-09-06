@@ -241,8 +241,8 @@
         const diffMs = expiresAt - now;
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-        if (diffDays > 3) {
-          // ACTIVE: Membership active with > 3 days remaining. Duplicate payments strictly locked!
+        if (diffDays > 0) {
+          // ACTIVE: Membership active (not expired). Payment method and payment QR will NOT pop up!
           return {
             status: 'active',
             record: approvedRecord,
@@ -252,29 +252,8 @@
             canRenew: false,
             records,
           };
-        } else if (diffDays > 0) {
-          // RENEWAL WINDOW: 3 days or fewer remaining
-          if (pendingRecord) {
-            return {
-              status: 'pending',
-              record: pendingRecord,
-              approvedRecord,
-              expiresAt,
-              diffDays,
-              canRenew: false,
-              records,
-            };
-          }
-          return {
-            status: 'renewal_available',
-            record: approvedRecord,
-            expiresAt,
-            diffDays,
-            canRenew: true,
-            records,
-          };
         } else {
-          // EXPIRED
+          // EXPIRED: Membership has expired. Payment method and payment QR will now pop up for renewal!
           if (pendingRecord) {
             return {
               status: 'pending',
