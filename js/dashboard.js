@@ -164,6 +164,29 @@
     }
 
     async syncWithBackend(discordId) {
+      // 1. Fetch user verifications directly from Supabase if configured
+      if (window.SupabaseService?.isConfigured() && discordId) {
+        try {
+          const supabaseVerifications = await window.SupabaseService.fetchUserVerifications(discordId);
+          if (supabaseVerifications && supabaseVerifications.length > 0) {
+            const formatted = supabaseVerifications.map((item) => ({
+              transactionId: item.transaction_id || 'TXN-000000',
+              planName: item.plan_name || 'Monthly All-Access Subscription',
+              amount: item.amount || 1000,
+              currency: item.currency || 'NPR',
+              method: item.payment_method || 'Direct Transfer',
+              date: new Date(item.created_at).toLocaleDateString(),
+              status: item.status === 'verified' || item.status === 'approved' ? 'verified' : (item.status === 'rejected' ? 'rejected' : 'pending'),
+            }));
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(formatted));
+            this.renderHistory();
+          }
+        } catch (supaErr) {
+          console.warn('Could not sync history from Supabase:', supaErr);
+        }
+      }
+
+      // 2. Fetch membership plan from bot API
       const apiBase = window.API_BASE || window.location.origin;
       try {
         const res = await fetch(`${apiBase}/api/memberships/${discordId}`);

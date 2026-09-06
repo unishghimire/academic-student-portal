@@ -601,13 +601,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         let submissionResultTxId = payload.transactionId;
+        let finalProofUrl = proofUrl;
 
-        // Call backend API if available
+        // 1. If Supabase is configured and screenshot was provided, upload to Supabase Storage
+        if (window.SupabaseService?.isConfigured() && uploadedReceiptBase64) {
+          try {
+            if (submitBtn) submitBtn.querySelector('.btn-text').textContent = 'Uploading Proof to Supabase Storage...';
+            const uploadedUrl = await window.SupabaseService.uploadReceipt(uploadedReceiptBase64, discordIdVal);
+            if (uploadedUrl) {
+              finalProofUrl = uploadedUrl;
+              payload.proofUrl = uploadedUrl;
+            }
+          } catch (storageErr) {
+            console.warn('Supabase storage upload failed; proceeding with base64/link:', storageErr);
+          }
+        }
+
+        // 2. Save complete verification record to Supabase Database
+        if (window.SupabaseService?.isConfigured()) {
+          try {
+            if (submitBtn) submitBtn.querySelector('.btn-text').textContent = 'Recording in Supabase Database...';
+            const record = await window.SupabaseService.saveVerificationRecord({
+              ...payload,
+              proofUrl: finalProofUrl,
+            });
+            if (record && record.transaction_id) {
+              submissionResultTxId = record.transaction_id;
+            }
+          } catch (dbErr) {
+            console.warn('Supabase DB save error:', dbErr);
+          }
+        }
+
+        // 3. Call backend API if available
         try {
+          if (submitBtn) submitBtn.querySelector('.btn-text').textContent = 'Synchronizing with Academy API...';
           const response = await fetch(`${API_URL}/api/payments/manual-submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({ ...payload, proofUrl: finalProofUrl }),
           });
 
           if (response.ok) {

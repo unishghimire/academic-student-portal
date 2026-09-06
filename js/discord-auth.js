@@ -276,6 +276,16 @@
         });
       });
 
+      // Supabase input defaults
+      const supabaseUrlInput = document.getElementById('configSupabaseUrl');
+      const supabaseKeyInput = document.getElementById('configSupabaseAnonKey');
+      if (supabaseUrlInput && window.SUPABASE_CONFIG?.url) {
+        supabaseUrlInput.value = window.SUPABASE_CONFIG.url;
+      }
+      if (supabaseKeyInput && window.SUPABASE_CONFIG?.anonKey) {
+        supabaseKeyInput.value = window.SUPABASE_CONFIG.anonKey;
+      }
+
       saveDiscordConfigBtn?.addEventListener('click', () => {
         const newClientId = document.getElementById('configDiscordClientId')?.value?.trim();
         const newGuildId = document.getElementById('configDiscordGuildId')?.value?.trim();
@@ -288,7 +298,14 @@
           localStorage.setItem('ACADEMY_DISCORD_GUILD_ID', newGuildId);
           if (window.DISCORD_CONFIG) window.DISCORD_CONFIG.guildId = newGuildId;
         }
-        alert('Discord Application settings updated successfully!');
+
+        const newSupabaseUrl = supabaseUrlInput?.value?.trim();
+        const newSupabaseKey = supabaseKeyInput?.value?.trim();
+        if (newSupabaseUrl || newSupabaseKey) {
+          window.SupabaseService?.setCredentials(newSupabaseUrl, newSupabaseKey);
+        }
+
+        alert('Application & Supabase settings updated successfully!');
       });
     }
 

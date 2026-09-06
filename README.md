@@ -35,18 +35,29 @@ Set your Backend API URL and Discord Application credentials in `index.html` met
 <meta name="backend-api-url" content="https://your-bot-backend.railway.app">
 
 <!-- Discord Application Credentials (from discord.com/developers) -->
-<meta name="discord-client-id" content="YOUR_DISCORD_CLIENT_ID">
+<meta name="discord-client-id" content="1545687507725979768">
 <meta name="discord-guild-id" content="YOUR_DISCORD_GUILD_ID">
+
+<!-- Supabase Database & Storage Credentials (from supabase.com) -->
+<meta name="supabase-url" content="https://your-project.supabase.co">
+<meta name="supabase-anon-key" content="YOUR_SUPABASE_ANON_KEY">
 ```
+
+### 🗄️ Supabase Setup (Database & Screenshot Storage)
+1. Go to your Supabase project dashboard at [supabase.com](https://supabase.com).
+2. Open the **SQL Editor** tab.
+3. Copy and run the contents of [`supabase_schema.sql`](./supabase_schema.sql).
+   - Creates the `payment_verifications` table.
+   - Creates the `payment-proofs` public storage bucket for receipt screenshots.
+   - Configures public insert & read policies.
+4. Copy your **Project URL** and **Anon Key** from **Project Settings ➔ API** and paste them into `index.html` meta tags or `js/config.js`.
 
 ### Discord OAuth2 Setup
 1. Go to [discord.com/developers/applications](https://discord.com/developers/applications)
-2. Create or select your application
+2. Select your application (`1545687507725979768`).
 3. Under **OAuth2 ➔ General**:
-   - Add your redirect URL: `https://your-domain.vercel.app/` (or `http://localhost:3000/`)
-4. Copy your **Client ID** into `index.html` or `js/config.js`.
-
-*(Note: The portal also features an **Instant Verified Connect (Test Mode)** for immediate testing without setting up Discord developer keys).*
+   - Add your redirect URL: `https://academic-student-portal.vercel.app/` (or `http://localhost:5173/`)
+4. Save changes.
 
 ---
 

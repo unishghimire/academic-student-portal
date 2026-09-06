@@ -16,6 +16,8 @@
   <meta name="backend-api-url" content="">
   <meta name="discord-client-id" content="1545687507725979768">
   <meta name="discord-guild-id" content="">
+  <meta name="supabase-url" content="">
+  <meta name="supabase-anon-key" content="">
 </head>
 <body>
   <div class="background-glow"></div>
@@ -605,9 +607,9 @@
 
         <!-- Discord Application Setup Details (Collapsible) -->
         <details class="config-accordion mt-15" id="discordConfigNotice">
-          <summary>⚙️ Change Discord Application Credentials</summary>
+          <summary>⚙️ Change Discord & Supabase Credentials</summary>
           <div class="config-accordion-body">
-            <p class="small-text">App registered at <a href="https://discord.com/developers/applications" target="_blank" rel="noopener">discord.com/developers</a>:</p>
+            <p class="small-text"><strong>Discord Settings:</strong></p>
             <div class="form-group mt-10">
               <label for="configDiscordClientId">Discord Client ID</label>
               <input type="text" id="configDiscordClientId" value="1545687507725979768">
@@ -616,7 +618,18 @@
               <label for="configDiscordGuildId">Discord Server / Guild ID</label>
               <input type="text" id="configDiscordGuildId" placeholder="e.g. 123456789012345678">
             </div>
-            <button type="button" id="saveDiscordConfigBtn" class="btn btn-secondary btn-sm mt-10">Save App Settings</button>
+
+            <p class="small-text mt-15"><strong>Supabase Database & Storage:</strong></p>
+            <div class="form-group mt-10">
+              <label for="configSupabaseUrl">Supabase Project URL</label>
+              <input type="url" id="configSupabaseUrl" placeholder="https://xyzcompany.supabase.co">
+            </div>
+            <div class="form-group">
+              <label for="configSupabaseAnonKey">Supabase Anon Public Key</label>
+              <input type="text" id="configSupabaseAnonKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6...">
+            </div>
+
+            <button type="button" id="saveDiscordConfigBtn" class="btn btn-secondary btn-sm mt-10">Save Settings</button>
           </div>
         </details>
       </div>
@@ -642,9 +655,12 @@
   <!-- Copy Toast Notification -->
   <div id="toast" class="toast hidden">Copied to clipboard!</div>
 
-  <script src="js/config.js?v=3.5"></script>
-  <script src="js/discord-auth.js?v=3.5"></script>
-  <script src="js/dashboard.js?v=3.5"></script>
-  <script src="js/proof.js?v=3.5"></script>
+  <!-- Libraries & Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js?v=3.6"></script>
+  <script src="js/supabase-client.js?v=3.6"></script>
+  <script src="js/discord-auth.js?v=3.6"></script>
+  <script src="js/dashboard.js?v=3.6"></script>
+  <script src="js/proof.js?v=3.6"></script>
 </body>
 </html>

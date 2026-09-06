@@ -35,6 +35,19 @@
     scopes: ['identify', 'email', 'guilds'],
   };
 
+  // Supabase Configuration
+  const metaSupabaseUrl = document.querySelector('meta[name="supabase-url"]')?.getAttribute('content');
+  const storedSupabaseUrl = window.localStorage?.getItem('ACADEMY_SUPABASE_URL');
+  const metaSupabaseAnonKey = document.querySelector('meta[name="supabase-anon-key"]')?.getAttribute('content');
+  const storedSupabaseAnonKey = window.localStorage?.getItem('ACADEMY_SUPABASE_ANON_KEY');
+
+  window.SUPABASE_CONFIG = {
+    url: window.SUPABASE_URL || metaSupabaseUrl || storedSupabaseUrl || '',
+    anonKey: window.SUPABASE_ANON_KEY || metaSupabaseAnonKey || storedSupabaseAnonKey || '',
+    bucket: 'payment-proofs',
+    tableName: 'payment_verifications',
+  };
+
   // Currency Definition
   window.ACADEMY_CURRENCY = {
     code: 'NPR',
