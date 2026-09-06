@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           if (checkState.status === 'active') {
-            alert(`⚠️ Active Subscription Detected\n\nYou currently have an active Monthly Subscription with ${checkState.diffDays} days remaining.\n\nPayment methods and payment QR will only pop up if you have no membership or if your membership has expired.`);
+            alert(`⚠️ Active Subscription Detected\n\nYou currently have an active Monthly Subscription with ${checkState.diffDays} days remaining.\n\nThe payment page will remain hidden until your subscription expires or duration date is less than 3 days for expiration.`);
             evaluateUserAccess(discordIdVal);
             return;
           }
@@ -728,10 +728,17 @@ document.addEventListener('DOMContentLoaded', () => {
           wizardMainContainer?.classList.add('hidden');
           activeMembershipCard?.classList.add('hidden');
           pendingLockdownCard?.classList.remove('hidden');
-        } else if (storedPlan && storedPlan.status === 'active' && storedPlan.expiresAt > Date.now()) {
-          wizardMainContainer?.classList.add('hidden');
-          pendingLockdownCard?.classList.add('hidden');
-          activeMembershipCard?.classList.remove('hidden');
+        } else if (storedPlan && storedPlan.status === 'active') {
+          const diffDays = Math.ceil((storedPlan.expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
+          if (diffDays > 3) {
+            wizardMainContainer?.classList.add('hidden');
+            pendingLockdownCard?.classList.add('hidden');
+            activeMembershipCard?.classList.remove('hidden');
+          } else {
+            pendingLockdownCard?.classList.add('hidden');
+            activeMembershipCard?.classList.add('hidden');
+            wizardMainContainer?.classList.remove('hidden');
+          }
         }
       }
     } catch (e) {}
