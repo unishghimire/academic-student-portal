@@ -224,7 +224,7 @@
             .eq('active', true)
             .order('order_index', { ascending: true });
 
-          if (!error && Array.isArray(data) && data.length > 0) {
+          if (!error && Array.isArray(data)) {
             return data;
           }
           if (error) {
@@ -250,7 +250,7 @@
           });
           if (res.ok) {
             const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
+            if (Array.isArray(data)) {
               return data;
             }
           }

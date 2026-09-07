@@ -80,41 +80,7 @@
     }
   };
 
-  // Default Nepali Payment Methods (eSewa, Khalti, Fonepay Bank Transfer)
-  window.DEFAULT_PAYMENT_METHODS = [
-    {
-      id: 'esewa',
-      title: 'eSewa Mobile Wallet',
-      badge: 'Instant Transfer',
-      brandColor: '#60bb46',
-      iconEmoji: '🟢',
-      accountName: 'The Elite Circle Academy',
-      accountNumber: '9801234567',
-      qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=esewa://payment?id=9801234567&amount=1000&name=Academy',
-      instructions: '1. Scan QR with eSewa app or send to 9801234567.\n2. In Remarks, put your Discord Username or Discord ID.\n3. Take a screenshot of the completed payment receipt.'
-    },
-    {
-      id: 'khalti',
-      title: 'Khalti Digital Wallet',
-      badge: 'Instant Transfer',
-      brandColor: '#5c2d91',
-      iconEmoji: '🟣',
-      accountName: 'The Elite Circle Academy',
-      accountNumber: '9801234567',
-      qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=khalti://pay?to=9801234567&amount=1000&name=Academy',
-      instructions: '1. Open Khalti and send to 9801234567 or scan the QR code.\n2. Add your Discord Tag in Remarks.\n3. Save transaction receipt screenshot for upload.'
-    },
-    {
-      id: 'fonepay',
-      title: 'Fonepay / Bank Direct QR',
-      badge: 'Any Mobile Banking',
-      brandColor: '#e21b22',
-      iconEmoji: '🔴',
-      accountName: 'The Elite Circle Academy',
-      accountNumber: '01201017500123 (Nabil Bank)',
-      branch: 'Kathmandu Main Branch',
-      qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=fonepay://qr?acc=01201017500123&bank=NABIL&amount=1000',
-      instructions: '1. Open any Nepali Mobile Banking app (Nabil, NIC Asia, Global IME, etc.).\n2. Scan Fonepay QR or transfer to Account: 01201017500123.\n3. Save the payment receipt with the Transaction ID.'
-    }
-  ];
+  // Payment methods are strictly loaded from the Supabase database (public.payment_methods)
+  // Mock fallbacks are disabled so the portal only displays available methods configured in the database
+  window.DEFAULT_PAYMENT_METHODS = [];
 })();

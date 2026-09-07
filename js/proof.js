@@ -135,11 +135,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function initWizardNavigation() {
     // Step 1 -> 2
     btnStep1Next?.addEventListener('click', () => {
+      if (!methodsData || methodsData.length === 0) {
+        alert('No payment methods are currently available in the database. Please contact academy staff.');
+        return;
+      }
       if (!selectedMethod && methodsData.length > 0) {
         selectMethod(methodsData[0]);
       }
       if (!selectedMethod) {
-        alert('Please select a payment method to continue.');
+        alert('Please select an available payment method to continue.');
         return;
       }
       populateStep2(selectedMethod);
@@ -210,12 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
   window.goToWizardStep = goToWizardStep;
 
   /* ==========================================================================
-     2. PAYMENT METHODS & NEPALI QR DISPLAY (LIVE FROM SUPABASE DATABASE)
+     2. PAYMENT METHODS & NEPALI QR DISPLAY (LIVE FROM SUPABASE DATABASE ONLY)
      ========================================================================== */
   function normalizePaymentMethod(m) {
     if (!m) return null;
+    // Strictly filter out inactive or disabled methods
+    if (m.active === false) return null;
 
-    const rawTitle = (m.title || 'Payment Method').trim();
+    const rawTitle = (m.title || '').trim();
+    if (!rawTitle) return null;
+
     const lowerTitle = rawTitle.toLowerCase();
 
     // Auto-detect brand emoji, color, and badge based on title if not provided
@@ -250,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       accountNumber: m.account_number || m.accountNumber || '',
       qrCodeUrl: (m.qr_code_url || m.qrCodeUrl || '').trim(),
       instructions: m.instructions || '',
-      active: m.active !== false,
+      active: true,
       orderIndex: m.order_index !== undefined ? m.order_index : (m.orderIndex || 0),
       iconEmoji,
       brandColor,
@@ -259,48 +267,67 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadPaymentMethods() {
+    if (methodsContainer) {
+      methodsContainer.innerHTML = `
+        <div class="methods-loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: #94a3b8; background: rgba(15, 23, 42, 0.5); border-radius: 14px; border: 1px dashed rgba(255,255,255,0.1);">
+          <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.15); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.6rem;"></div>
+          <p style="font-size: 0.9rem; margin: 0; color: #cbd5e1;">Reading available payment methods from database...</p>
+        </div>
+      `;
+    }
+
     try {
-      // 1. Primary Source: Fetch live active payment methods & QR codes uploaded via Admin Panel to Supabase DB
+      // 1. Primary & Only Source: Live Supabase database 'payment_methods' table
       let liveMethods = [];
       if (window.SupabaseService && typeof window.SupabaseService.fetchPaymentMethods === 'function') {
         liveMethods = await window.SupabaseService.fetchPaymentMethods();
       }
 
-      if (Array.isArray(liveMethods) && liveMethods.length > 0) {
-        methodsData = liveMethods.map(normalizePaymentMethod).filter(Boolean);
-        console.log(`[PaymentMethods] Loaded ${methodsData.length} live method(s) from database:`, methodsData.map(m => m.title));
-      } else {
-        // 2. Fallback to API if available
-        try {
-          const res = await fetch(`${API_URL}/api/payments/methods`);
-          if (res.ok) {
-            const json = await res.json();
-            if (json.success && json.data && json.data.length > 0) {
-              methodsData = json.data.map(normalizePaymentMethod).filter(Boolean);
-            }
-          }
-        } catch (_) {}
+      if (Array.isArray(liveMethods)) {
+        // Strictly only show methods that are active in the database
+        methodsData = liveMethods
+          .map(normalizePaymentMethod)
+          .filter(Boolean)
+          .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-        // 3. Fallback to default configured methods if DB returned nothing
-        if (!methodsData || methodsData.length === 0) {
-          methodsData = (window.DEFAULT_PAYMENT_METHODS || []).map(normalizePaymentMethod).filter(Boolean);
-        }
+        console.log(`[PaymentMethods] Database query returned ${methodsData.length} available method(s):`, methodsData.map(m => m.title));
+      } else {
+        methodsData = [];
       }
     } catch (err) {
-      console.warn('[PaymentMethods] Error loading methods from database, falling back:', err);
-      methodsData = (window.DEFAULT_PAYMENT_METHODS || []).map(normalizePaymentMethod).filter(Boolean);
+      console.error('[PaymentMethods] Error reading payment methods from database:', err);
+      methodsData = [];
     }
 
     renderMethods(methodsData);
 
-    // Keep previously selected method if still active, or default to first method
+    // Keep previously selected method if still active in DB, or select first available
     if (methodsData.length > 0) {
       const match = selectedMethod ? methodsData.find(m => String(m.id) === String(selectedMethod.id)) : null;
       selectMethod(match || methodsData[0]);
+      if (btnStep1Next) {
+        btnStep1Next.disabled = false;
+        btnStep1Next.classList.remove('disabled');
+      }
+    } else {
+      selectedMethod = null;
+      if (paymentMethodHidden) paymentMethodHidden.value = '';
+      if (summaryMethodName) summaryMethodName.textContent = 'None Available';
+      if (btnStep1Next) {
+        btnStep1Next.disabled = true;
+        btnStep1Next.classList.add('disabled');
+      }
     }
   }
 
   window.refreshPortalPaymentMethods = loadPaymentMethods;
+
+  // Auto-refresh payment methods whenever the student portal tab becomes visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      loadPaymentMethods();
+    }
+  });
 
   function renderMethods(methods) {
     if (!methodsContainer) return;
@@ -308,13 +335,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!methods || methods.length === 0) {
       methodsContainer.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: #94a3b8; background: rgba(15, 23, 42, 0.6); border-radius: 14px; border: 1px dashed rgba(255,255,255,0.15);">
-          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
-          <strong style="color: #f8fafc; font-size: 1.05rem;">No payment methods currently active</strong>
-          <p style="margin-top: 0.4rem; font-size: 0.9rem;">Payment methods and QR codes are managed by Academy Staff via the Admin Panel. Please check back shortly.</p>
+        <div class="no-methods-available-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; color: #94a3b8; background: rgba(15, 23, 42, 0.6); border-radius: 16px; border: 1px dashed rgba(239, 68, 68, 0.35);">
+          <div style="font-size: 2.4rem; margin-bottom: 0.6rem;">🔒</div>
+          <h3 style="color: #f8fafc; font-size: 1.15rem; margin-bottom: 0.4rem; font-weight: 700;">No Payment Methods Currently Available</h3>
+          <p style="margin: 0 auto 1.25rem auto; font-size: 0.88rem; max-width: 480px; line-height: 1.6; color: #cbd5e1;">
+            Payment methods and QR codes are updated live by Academy Staff via the Admin Panel. No active payment method is currently configured in the database.
+          </p>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="window.refreshPortalPaymentMethods()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px;">
+            <span>🔄</span> Check Database Again
+          </button>
         </div>
       `;
+      if (btnStep1Next) {
+        btnStep1Next.disabled = true;
+        btnStep1Next.classList.add('disabled');
+      }
       return;
+    }
+
+    if (btnStep1Next) {
+      btnStep1Next.disabled = false;
+      btnStep1Next.classList.remove('disabled');
     }
 
     methods.forEach((m, idx) => {
